@@ -10,3 +10,29 @@ CREATE TABLE users (
     company_name VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE candidate_cvs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    filename VARCHAR(255) NOT NULL,
+    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+
+CREATE TABLE candidate_cvs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    filename VARCHAR(255) NOT NULL,
+    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE job_requirements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    filename VARCHAR(255) NOT NULL,
+    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
