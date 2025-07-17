@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head><title>Candidate Page</title></head>
+<head>
+    <title>Candidate Page</title>
+</head>
 <body>
     <h2>Welcome, {{ username }} (Candidate)</h2>
+
+    <!-- Flash messages for upload/delete success -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <p style="color: green;">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <h3>Upload Your CV</h3>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="cv_file" required>
         <button type="submit">Upload</button>
+    </form>
+
+    <h3>Find Matching Jobs</h3>
+    <form action="{{ url_for('match_jobs') }}" method="GET">
+        <button type="submit">Find Matching Jobs</button>
     </form>
 
     <h3>Your Uploaded CVs</h3>

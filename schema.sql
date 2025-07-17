@@ -11,14 +11,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE candidate_cvs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    filename VARCHAR(255) NOT NULL,
-    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
 
 CREATE TABLE candidate_cvs (
     id INT AUTO_INCREMENT PRIMARY KEY,
