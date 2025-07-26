@@ -1,4 +1,6 @@
-<h2>Register</h2>
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
 <form method="POST">
   <input type="text" name="username" placeholder="Username" required><br>
   <input type="password" name="password" placeholder="Password" required><br>
@@ -26,3 +28,4 @@ function toggleFields() {
     document.getElementById('jobgiver-fields').style.display = (role == 'jobgiver') ? 'block' : 'none';
 }
 </script>
+{% endblock %}

@@ -1,31 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head><title>Job Giver Page</title></head>
-<body>
-    
+{% extends "base.html" %}
+{% block title %}Job Giver Dashboard{% endblock %}
+{% block content %}
 <h1>Welcome, {{ username }}</h1>
 
-<!-- Flash Messages -->
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for msg in messages %}
-      <p style="color: green;">{{ msg }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<!-- Upload Form -->
 <form method="POST" enctype="multipart/form-data">
     <input type="file" name="job_file" required>
     <button type="submit">Upload Job</button>
 </form>
 
-<!-- Match Candidates Button -->
 <form action="/match-candidates" method="get">
     <button type="submit">Find Matching Candidates</button>
 </form>
 
-<!-- Job List -->
 <h3>Your Uploaded Job Files:</h3>
 <ul>
     {% for job in job_files %}
@@ -37,6 +23,5 @@
         </li>
     {% endfor %}
 </ul>
-
-</body>
-</html>
+<a href="{{ url_for('homepage') }}">← Go Back</a>
+{% endblock %}

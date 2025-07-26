@@ -1,24 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Matching Candidates</title>
-</head>
-<body>
-    <h2>Matching Candidates for Job: {{ job_file }}</h2>
+{% extends "base.html" %}
+{% block title %}Matching Candidates{% endblock %}
+{% block content %}
+<h2>Matching Candidates for Job: {{ job_file }}</h2>
 
-    {% if results %}
-        <ul>
-            {% for filename, score in results %}
-                <li>
-                    <a href="{{ url_for('uploaded_cv', filename=filename) }}" target="_blank">
-                        {{ filename }}
-                    </a>
-                    - Similarity: {{ '%.2f' % (score * 100) }}%
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No matching CVs found.</p>
-    {% endif %}
-</body>
-</html>
+{% if results %}
+    <ul>
+        {% for filename, score in results %}
+            <li>
+                <a href="{{ url_for('uploaded_cv', filename=filename) }}" target="_blank">
+                    {{ filename }}
+                </a>
+                - Similarity: {{ '%.2f' % (score * 100) }}%
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No matching CVs found.</p>
+{% endif %}
+<a href="{{ request.referrer or url_for('candidate') }}">← Go Back</a>
+{% endblock %}
