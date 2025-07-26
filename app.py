@@ -57,9 +57,15 @@ class JobRequirement(db.Model):
 # Routes
 # =======================
 
-# Home/Login
-@app.route('/', methods=['GET', 'POST'])
+# Home Page Route (Just displays homepage)
+@app.route('/')
 def homepage():
+    return render_template('homepage.html')  
+
+
+# Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -71,7 +77,7 @@ def homepage():
             return redirect('/candidate' if role == 'candidate' else '/jobgiver')
         else:
             return "Invalid login. Try again."
-    return render_template('homepage.html')
+    return render_template('login.html')
 
 
 # Registration

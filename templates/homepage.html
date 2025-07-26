@@ -1,14 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}Home - Job Portal{% endblock %}
+
 {% block content %}
-<form method="POST">
-  <input type="text" name="username" placeholder="Username" required><br>
-  <input type="password" name="password" placeholder="Password" required><br>
-  <select name="role" required>
-    <option value="candidate">Candidate</option>
-    <option value="jobgiver">Job Giver</option>
-  </select><br>
-  <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="/register">Register here</a></p>
+    <div class="home-container">
+        <p>This is your one-stop destination for jobs and hiring!</p>
+        <a href="/login" class="btn">Login</a>
+        <a href="/register" class="btn">Register</a>
+    </div>
 {% endblock %}
