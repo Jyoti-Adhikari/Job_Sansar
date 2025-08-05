@@ -28,3 +28,5 @@ CREATE TABLE job_requirements (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+ALTER TABLE candidate_cvs ADD COLUMN domain VARCHAR(100);
+ALTER TABLE job_requirements ADD COLUMN domain VARCHAR(100);

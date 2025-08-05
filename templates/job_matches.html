@@ -6,14 +6,18 @@
 <h2>Matching Jobs for CV: {{ cv_file }}</h2>
 
 {% if results %}
+<!-- Show the domain of the uploaded CV (taken from the first result) -->
+<p><strong>Domain:</strong> {{ results[0][2] }}</p>
+
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>Job File</th>
         <th>Similarity Score</th>
     </tr>
-    {% for job_file, score in results %}
+    {% for job_file, score, domain in results %}
     <tr>
         <td>
+            <!-- Link to download/view job file -->
             <a href="{{ url_for('uploaded_job', filename=job_file) }}" target="_blank">
                 {{ job_file }}
             </a>
@@ -26,5 +30,5 @@
 <p>No matching job requirements found.</p>
 {% endif %}
 
-<a href="javascript:history.back()">← Go Back</a>
+<a href="/">← Go Back</a>
 {% endblock %}
