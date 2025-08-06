@@ -218,19 +218,25 @@ def uploaded_job(filename):
 # =====================
 # MATCH CANDIDATES TO JOB (Used by JobGiver)
 # =====================
-@app.route('/match-candidates')
+@app.route('/match-candidates', methods=['POST'])
 def match_candidates():
     if 'role' in session and session['role'] == 'jobgiver':
+        job_id = request.form.get('job_id')
+        if not job_id:
+            return "Job ID not provided."
+
         user = User.query.filter_by(username=session['username']).first()
-        # Get the latest uploaded job by this user
-        job = JobRequirement.query.filter_by(user_id=user.id).order_by(JobRequirement.upload_date.desc()).first()
+        job = JobRequirement.query.filter_by(id=job_id, user_id=user.id).first()
         if not job:
-            return "No job uploaded."
+            return "Job not found."
 
-        job_text = read_file_text(os.path.join(app.config['JOBGIVER_UPLOADS'], job.filename))
-        cvs = CandidateCV.query.filter_by(domain=job.domain).all()  # Filter CVs by the same domain as the job
+        job_path = os.path.join(app.config['JOBGIVER_UPLOADS'], job.filename)
+        if not os.path.exists(job_path):
+            return "Job file missing."
 
-        # Read all CV texts
+        job_text = read_file_text(job_path)
+        cvs = CandidateCV.query.filter_by(domain=job.domain).all()  # Same domain
+
         cv_texts, cv_names = [], []
         for cv in cvs:
             path = os.path.join(app.config['CANDIDATE_UPLOADS'], cv.filename)
@@ -239,33 +245,39 @@ def match_candidates():
                 cv_names.append(cv.filename)
 
         if not cv_texts:
-            return "No CVs available."
+            return "No CVs available for this domain."
 
-        # AI Matching Logic: returns ranked CVs based on similarity to job description
         results = match_documents(job_text, cv_texts, cv_names, get_embedding)
-        # Add domain into results (same domain for all, since they are filtered already)
         results = [(name, score, job.domain) for name, score in results]
 
         return render_template('match_results.html', results=results, job_file=job.filename)
 
     return redirect('/')
 
+
 # =====================
 # MATCH JOBS TO CANDIDATE CV (Used by Candidate)
 # =====================
-@app.route('/match-jobs')
+@app.route('/match-jobs', methods=['POST'])
 def match_jobs():
     if 'role' in session and session['role'] == 'candidate':
         user = User.query.filter_by(username=session['username']).first()
-        # Get the latest uploaded CV
-        cv = CandidateCV.query.filter_by(user_id=user.id).order_by(CandidateCV.upload_date.desc()).first()
+
+        cv_id = request.form.get('cv_id')
+        if not cv_id:
+            return "CV ID not provided."
+
+        cv = CandidateCV.query.filter_by(id=cv_id, user_id=user.id).first()
         if not cv:
-            return "No CV uploaded."
+            return "CV not found."
 
-        cv_text = read_file_text(os.path.join(app.config['CANDIDATE_UPLOADS'], cv.filename))
-        jobs = JobRequirement.query.filter_by(domain=cv.domain).all()  # Filter jobs by the same domain as the CV
+        cv_path = os.path.join(app.config['CANDIDATE_UPLOADS'], cv.filename)
+        if not os.path.exists(cv_path):
+            return "CV file missing."
 
-        # Read all job descriptions
+        cv_text = read_file_text(cv_path)
+        jobs = JobRequirement.query.filter_by(domain=cv.domain).all()
+
         job_texts, job_files = [], []
         for job in jobs:
             path = os.path.join(app.config['JOBGIVER_UPLOADS'], job.filename)
@@ -274,16 +286,15 @@ def match_jobs():
                 job_files.append(job.filename)
 
         if not job_texts:
-            return "No jobs available."
+            return "No jobs available for this domain."
 
-        # AI Matching Logic: returns ranked jobs based on similarity to the CV
         results = match_documents(cv_text, job_texts, job_files, get_embedding)
-        # Add domain into results (same domain for all, since they are filtered already)
         results = [(name, score, cv.domain) for name, score in results]
 
         return render_template('job_matches.html', results=results, cv_file=cv.filename)
 
     return redirect('/')
+
 
 # =====================
 # RUN FLASK SERVER
