@@ -30,3 +30,8 @@ CREATE TABLE job_requirements (
 
 ALTER TABLE candidate_cvs ADD COLUMN domain VARCHAR(100);
 ALTER TABLE job_requirements ADD COLUMN domain VARCHAR(100);
+
+
+
+INSERT INTO users (username, password, role)
+VALUES ('jyoti', 'jyoti', 'admin');
