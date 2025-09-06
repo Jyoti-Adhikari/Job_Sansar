@@ -22,7 +22,7 @@
                 {{ cv_file }}
             </a>
         </td>
-        <td>{{ '%.2f' | format(score * 100) }}%</td>
+        <td>{{ '%.2f' | format(score) }}%</td> <!-- Removed * 100 -->
     </tr>
     {% endfor %}
 </table>
