@@ -1,11 +1,55 @@
-{% extends 'base.html' %}
-
-{% block title %}Home - Job Portal{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Job Portal</title>
+    <link rel="stylesheet" href="static/style/homepage.css">
+</head>
+<body>
     <div class="home-container">
-        <p>This is your one-stop destination for jobs and hiring!</p>
-        <a href="/login" class="btn">Login</a>
-        <a href="/register" class="btn">Register</a>
+        <!-- Navigation bar -->
+        <div class="navbar">
+            <div class="logo">Job Sansar</div>
+            <div class="nav-links">
+                <a href="#" class="nav-item">Home</a>
+                <a href="#" class="nav-item">About</a>
+                <a href="#" class="nav-item">Contact</a>
+                
+            </div>
+            <div class="auth-buttons">
+                <a href="/login" class="nav-item btn">Log in</a>
+                <a href="/register" class="nav-item btn get-started">Register</a>
+            </div>
+        </div>
+
+        <!-- Hero section -->
+        <div class="hero-section">
+            <div class="hero-image left-image">
+                <img src="static/images/sitting.jpg" alt="Working Illustration" class="hero-img">
+            </div>
+            <div class="hero-text">
+                <h1><span class="orange-text">JOB SANSAR</span><br>Get your ideal job</h1>
+            </div>
+        </div>
+
+        <!-- Bottom image section -->
+        <div class="bottom-image right-image">
+            <img src="static/images/cycling.jpg" alt="Cycling Illustration" class="bottom-img">
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Job Sansar. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#" class="footer-item">About</a>
+                    <a href="#" class="footer-item">Contact</a>
+                    <a href="#" class="footer-item">Privacy Policy</a>
+                </div>
+                
+            </div>
+        </footer>
     </div>
-{% endblock %}
+</body>
+</html>

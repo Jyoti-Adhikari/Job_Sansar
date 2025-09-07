@@ -1,20 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Job Portal{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
 </head>
 <body>
-    <h2>Welcome to the Job Portal</h2>
-    
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for msg in messages %}
-          <p style="color: green;">{{ msg }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <!-- Header -->
+    <header>
+        <h1>Job Sansar</h1>
+        <nav>
+            <a href="{{ url_for('homepage') }}">Home</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
 
-    {% block content %}{% endblock %}
+    <!-- Flash Messages -->
+    <main>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for msg in messages %}
+              <p class="flash-message">{{ msg }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Job Sansar. All rights reserved.</p>
+        <p>
+            <nav>
+              <a href="#" class="footer-item">About</a>
+              <a href="#" class="footer-item">Contact</a>
+              <a href="#" class="footer-item">Privacy Policy</a>
+            </nav>
+        </p>
+    </footer>
 </body>
 </html>
