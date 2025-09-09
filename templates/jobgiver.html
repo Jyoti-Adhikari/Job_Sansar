@@ -1,45 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Job Giver Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<h1>Welcome, {{ username }}</h1>
+<div class="dashboard-container">
+    <h2>Welcome, {{ username }} (Job Giver)</h2>
 
-<!-- Upload Form -->
-<form method="POST" enctype="multipart/form-data">
-    <label for="domain">Select Domain:</label>
-    <select name="domain" required>
-        <option value="">--Select Domain--</option>
-        <option value="Engineering">Engineering</option>
-        <option value="Information Technology">Information Technology</option>
-        <option value="Healthcare">Healthcare</option>
-        <option value="Education">Education</option>
-        <option value="Finance">Finance</option>
-        <option value="Marketing">Marketing</option>
-        <option value="Design">Design</option>
-        <option value="Sales">Sales</option>
-        <option value="Legal">Legal</option>
-        <option value="Operations / Management">Operations / Management</option>
-    </select><br><br>
-    <input type="file" name="job_file" required>
-    <button type="submit">Upload Job</button>
-</form>
-
-<h3>Your Uploaded Job Files:</h3>
-<ul>
-    {% for job in job_files %}
-        <li>
-            {{ job.filename }} (Uploaded: {{ job.upload_date.strftime('%Y-%m-%d') }})
-            <!-- Delete Button -->
-            <form method="POST" action="/jobgiver/delete/{{ job.id }}" style="display:inline;">
-                <button type="submit">Delete</button>
+    <div class="dashboard-columns">
+        <!-- Left column: Upload Job Form -->
+        <div class="dashboard-upload">
+            <h3>Upload Job</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <label for="domain">Select Domain:</label>
+                <select name="domain" required>
+                    <option value="">--Select Domain--</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Design">Design</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Operations / Management">Operations / Management</option>
+                </select><br><br>
+                <input type="file" name="job_file" required>
+                <button type="submit">Upload Job</button>
             </form>
-            <!-- Find Matching Candidates for this job -->
-            <form method="POST" action="/match-candidates" style="display:inline;">
-                <input type="hidden" name="job_id" value="{{ job.id }}">
-                <button type="submit">Find Matching Candidates</button>
-            </form>
-        </li>
-    {% endfor %}
-</ul>
+        </div>
 
-<a href="{{ url_for('homepage') }}">← Go Back</a>
+        <!-- Right column: Uploaded Jobs -->
+        <div class="dashboard-files">
+            <h3>Your Uploaded Job Files</h3>
+            <ul>
+                {% for job in job_files %}
+                <li>
+                    {{ job.filename }} (Uploaded: {{ job.upload_date.strftime('%Y-%m-%d') }})
+                    <form method="POST" action="/jobgiver/delete/{{ job.id }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <form method="POST" action="/match-candidates" style="display:inline;">
+                        <input type="hidden" name="job_id" value="{{ job.id }}">
+                        <button type="submit">Find Matching Candidates</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <a href="{{ url_for('homepage') }}">← Go Back</a>
+</div>
 {% endblock %}

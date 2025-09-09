@@ -1,0 +1,135 @@
+/* dashboard.css */
+
+/* Container for the whole dashboard content */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 70vh; /* leave space for header/footer */
+    padding: 20px;
+    background: #f4f4f4; /* light grey background */
+}
+
+/* Welcome message */
+.dashboard-container h1,
+.dashboard-container h2 {
+    color: #ff6600; /* orange heading */
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Two-column layout for upload & uploaded files */
+.dashboard-columns {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap; /* responsive wrap */
+}
+
+/* Left column: Upload Form */
+.dashboard-upload {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 280px;
+}
+
+/* Right column: Uploaded Files */
+.dashboard-files {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 280px;
+}
+
+/* Labels and inputs */
+.dashboard-upload label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.dashboard-upload input[type="file"],
+.dashboard-upload select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: 0.3s;
+}
+
+.dashboard-upload input:focus,
+.dashboard-upload select:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 5px rgba(255,102,0,0.4);
+}
+
+/* Buttons */
+.dashboard-upload button,
+.dashboard-files button {
+    background: #ff6600;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 5px;
+    transition: 0.3s;
+}
+
+.dashboard-upload button:hover,
+.dashboard-files button:hover {
+    background: #e65c00;
+}
+
+/* Uploaded files list */
+.dashboard-files ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.dashboard-files li {
+    background: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Forms inside uploaded files (delete / match buttons) */
+.dashboard-files li form {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+/* Links */
+.dashboard-files a {
+    color: #ff6600;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.dashboard-files a:hover {
+    text-decoration: underline;
+}
+
+/* Go back link */
+.dashboard-container a {
+    display: inline-block;
+    margin-top: 20px;
+    color: #ff6600;
+    text-decoration: none;
+}
+
+.dashboard-container a:hover {
+    text-decoration: underline;
+}

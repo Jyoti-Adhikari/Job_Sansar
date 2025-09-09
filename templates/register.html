@@ -1,25 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/login.css') }}">
+{% endblock %}
+
 {% block content %}
-<form method="POST">
-  <input type="text" name="username" placeholder="Username" required><br>
-  <input type="password" name="password" placeholder="Password" required><br>
-  <select name="role" id="role" onchange="toggleFields()" required>
-    <option value="">Select Role</option>
-    <option value="candidate">Candidate</option>
-    <option value="jobgiver">Job Giver</option>
-  </select><br>
+<div class="login-container">
+    <div class="login-card">
+        <h2>Register</h2>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required><br>
+            <input type="password" name="password" placeholder="Password" required><br>
+            <select name="role" id="role" onchange="toggleFields()" required>
+                <option value="">Select Role</option>
+                <option value="candidate">Candidate</option>
+                <option value="jobgiver">Job Giver</option>
+            </select><br>
 
-  <div id="candidate-fields" style="display:none;">
-    <input type="text" name="address" placeholder="Address"><br>
-  </div>
+            <div id="candidate-fields" style="display:none;">
+                <input type="text" name="address" placeholder="Address"><br>
+            </div>
 
-  <div id="jobgiver-fields" style="display:none;">
-    <input type="text" name="company_name" placeholder="Company Name"><br>
-  </div>
+            <div id="jobgiver-fields" style="display:none;">
+                <input type="text" name="company_name" placeholder="Company Name"><br>
+            </div>
 
-  <button type="submit">Register</button>
-</form>
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="/login">Login here</a></p>
+    </div>
+</div>
 
 <script>
 function toggleFields() {

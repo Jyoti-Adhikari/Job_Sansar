@@ -1,0 +1,90 @@
+/* General container */
+.matches-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Headings */
+.matches-container h2 {
+    color: #f58220; /* Orange color */
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+/* Domain info */
+.matches-container p strong {
+    color: #f58220;
+}
+
+/* Table styling */
+.matches-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 1em;
+}
+
+.matches-container table th,
+.matches-container table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.matches-container table th {
+    background-color: #f58220;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.matches-container table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.matches-container table tr:hover {
+    background-color: #ffe6cc;
+}
+
+/* Links inside table */
+.matches-container table a {
+    color: #f58220;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.matches-container table a:hover {
+    text-decoration: underline;
+}
+
+/* Back to Dashboard link */
+.back-link {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 10px 20px;
+    background-color: #f58220;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.back-link:hover {
+    background-color: #e06d00;
+    transform: translateY(-2px);
+}
+
+/* Flash messages (optional if you use flash) */
+.flash-message {
+    background-color: #fff4e5;
+    border-left: 5px solid #f58220;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    color: #333;
+}

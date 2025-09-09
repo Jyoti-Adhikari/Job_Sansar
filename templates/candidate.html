@@ -1,48 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Candidate Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<h2>Welcome, {{ username }} (Candidate)</h2>
+<div class="dashboard-container">
+    <h2>Welcome, {{ username }} (Candidate)</h2>
 
-<h3>Upload Your CV</h3>
-<form method="POST" enctype="multipart/form-data">
-    <!-- Domain dropdown -->
-    <label for="domain">Select Domain:</label>
-    <select name="domain" required>
-        <option value="">--Select Domain--</option>
-        <option value="Engineering">Engineering</option>
-        <option value="Information Technology">Information Technology</option>
-        <option value="Healthcare">Healthcare</option>
-        <option value="Education">Education</option>
-        <option value="Finance">Finance</option>
-        <option value="Marketing">Marketing</option>
-        <option value="Design">Design</option>
-        <option value="Sales">Sales</option>
-        <option value="Legal">Legal</option>
-        <option value="Operations / Management">Operations / Management</option>
-    </select><br><br>
-    <input type="file" name="cv_file" required>
-    <button type="submit">Upload</button>
-</form>
-
-<h3>Your Uploaded CVs</h3>
-<ul>
-    {% for cv in cvs %}
-        <li>
-            {{ cv.filename }} (Uploaded on {{ cv.upload_date.strftime('%Y-%m-%d %H:%M') }})
-            
-            <!-- Delete Button -->
-            <form method="POST" action="/candidate/delete/{{ cv.id }}" style="display:inline;">
-                <button type="submit">Delete</button>
+    <div class="dashboard-columns">
+        <!-- Left column: Upload Form -->
+        <div class="dashboard-upload">
+            <h3>Upload Your CV</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <label for="domain">Select Domain:</label>
+                <select name="domain" required>
+                    <option value="">--Select Domain--</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Design">Design</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Operations / Management">Operations / Management</option>
+                </select><br><br>
+                <input type="file" name="cv_file" required>
+                <button type="submit">Upload</button>
             </form>
+        </div>
 
-            <!-- Find Matching Jobs Button -->
-            <form method="POST" action="/match-jobs" style="display:inline;">
-                <input type="hidden" name="cv_id" value="{{ cv.id }}">
-                <button type="submit">Find Matching Jobs</button>
-            </form>
-        </li>
-    {% endfor %}
-</ul>
+        <!-- Right column: Uploaded files -->
+        <div class="dashboard-files">
+            <h3>Your Uploaded CVs</h3>
+            <ul>
+                {% for cv in cvs %}
+                <li>
+                    {{ cv.filename }} (Uploaded on {{ cv.upload_date.strftime('%Y-%m-%d %H:%M') }})
+                    <form method="POST" action="/candidate/delete/{{ cv.id }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <form method="POST" action="/match-jobs" style="display:inline;">
+                        <input type="hidden" name="cv_id" value="{{ cv.id }}">
+                        <button type="submit">Find Matching Jobs</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 
-<a href="{{ url_for('homepage') }}">← Go Back</a>
+    <a href="{{ url_for('homepage') }}">← Go Back</a>
+</div>
 {% endblock %}

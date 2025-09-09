@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block title %}Matching Candidates{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/matches.css') }}">
+{% endblock %}
+
 
 {% block content %}
-<h2>Matching Candidates for Job: {{ job_file }}</h2>
+<div class="matches-container">
+    <h2>Matching Candidates for Job: {{ job_file }}</h2>
 
 {% if results %}
 <!-- Show the domain of the uploaded Job file -->
@@ -30,6 +35,7 @@
 <p>No matching candidates found.</p>
 {% endif %}
 
-<a href="{{ url_for('jobgiver') }}">← Back to Dashboard</a>
+<a href="{{ url_for('jobgiver') }}" class="back-link">← Back to Dashboard</a>
 
+</div>
 {% endblock %}
