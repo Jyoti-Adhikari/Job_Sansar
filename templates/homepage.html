@@ -12,9 +12,9 @@
         <div class="navbar">
             <div class="logo">Job Sansar</div>
             <div class="nav-links">
-                <a href="#" class="nav-item">Home</a>
-                <a href="#" class="nav-item">About</a>
-                <a href="#" class="nav-item">Contact</a>
+                <a href="{{ url_for('homepage') }}" class="nav-item">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-item">About</a>
+                <a href="{{ url_for('contact') }}" class="nav-item">Contact</a>
                 
             </div>
             <div class="auth-buttons">
@@ -43,9 +43,9 @@
             <div class="footer-content">
                 <p>&copy; 2025 Job Sansar. All rights reserved.</p>
                 <div class="footer-links">
-                    <a href="#" class="footer-item">About</a>
-                    <a href="#" class="footer-item">Contact</a>
-                    <a href="#" class="footer-item">Privacy Policy</a>
+                    <a href="{{ url_for('homepage') }}" class="footer-item">About</a>
+                    <a href="{{ url_for('contact') }}" class="footer-item">Contact</a>
+                    <a href="{{ url_for('privacy') }}" class="footer-item">Privacy Policy</a>
                 </div>
                 
             </div>

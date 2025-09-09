@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <h1 style="color: #FF6600; text-align: center;">Privacy Policy</h1>
+    <p>Welcome to JobSansar AI Job Portal. Your privacy is very important to us. This policy explains how we collect, use, and protect your information.</p>
+    
+    <h3 style="color: #FF6600;">1. Information We Collect</h3>
+    <ul>
+        <li>User registration details (username, email, etc.)</li>
+        <li>Uploaded CVs and job descriptions</li>
+        <li>Feedback messages</li>
+    </ul>
+
+    <h3 style="color: #FF6600;">2. How We Use Your Information</h3>
+    <ul>
+        <li>To provide AI matching between jobs and candidates</li>
+        <li>To communicate with you regarding your account and feedback</li>
+        <li>To improve our portal and services</li>
+    </ul>
+
+    <h3 style="color: #FF6600;">3. Sharing Your Information</h3>
+    <p>We do not sell or share your personal information with third parties, except for administrative purposes or as required by law.</p>
+
+    <h3 style="color: #FF6600;">4. Security</h3>
+    <p>We take all reasonable steps to protect your data from unauthorized access, alteration, or destruction.</p>
+
+    <h3 style="color: #FF6600;">5. Changes to This Policy</h3>
+    <p>We may update this privacy policy periodically. Any changes will be posted on this page.</p>
+
+    <p style="margin-top: 20px; text-align: center;">
+        <a href="{{ url_for('homepage') }}" style="color: #fff; background-color: #FF6600; padding: 10px 20px; border-radius: 5px; text-decoration: none;">← Back to Home</a>
+    </p>
+</div>
+{% endblock %}

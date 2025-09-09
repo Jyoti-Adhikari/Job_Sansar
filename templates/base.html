@@ -13,8 +13,8 @@
         <h1>Job Sansar</h1>
         <nav>
             <a href="{{ url_for('homepage') }}">Home</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
         </nav>
     </header>
 
@@ -36,9 +36,9 @@
         <p>© 2025 Job Sansar. All rights reserved.</p>
         <p>
             <nav>
-              <a href="#" class="footer-item">About</a>
-              <a href="#" class="footer-item">Contact</a>
-              <a href="#" class="footer-item">Privacy Policy</a>
+              <a href="{{ url_for('homepage') }}" class="footer-item">About</a>
+              <a href="{{ url_for('contact') }}" class="footer-item">Contact</a>
+              <a href="{{ url_for('privacy') }}" class="footer-item">Privacy Policy</a>
             </nav>
         </p>
     </footer>

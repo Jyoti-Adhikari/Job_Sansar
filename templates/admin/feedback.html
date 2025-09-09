@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}View Feedback{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/login.css') }}">
+<style>
+    .feedback-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+        color: #ff6600;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #ff6600;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    tr:hover {
+        background-color: #ffe6cc;
+    }
+    .btn-danger {
+        background: #ff3300;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-danger:hover {
+        background: #cc2900;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: 15px;
+        color: #ff6600;
+        text-decoration: none;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <h1>Feedback List</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if feedback_list %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Message</th>
+                    <th>Submitted At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedback_list %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ feedback.username }}</td>
+                        <td>{{ feedback.message }}</td>
+                        <td>{{ feedback.submitted_at }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.delete_feedback', feedback_id=feedback.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this feedback?');">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No feedback available.</p>
+    {% endif %}
+
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-link">⬅ Back to Admin Dashboard</a>
+</div>
+{% endblock %}

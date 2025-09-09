@@ -1,34 +1,93 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    <h1>Welcome Admin (Jyoti)</h1>
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/admin_dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome, Admin {{ session.username }}</h1>
     <a href="{{ url_for('admin.logout') }}">Logout</a>
+    <a href="{{ url_for('admin.view_feedback') }}">View Feedback</a>
 
     <h2>Users</h2>
     <p>Total Users: {{ users|length }}</p>
-    <ul>
-        {% for user in users %}
-            <li>{{ user.username }} (Role: {{ user.role }})</li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Address</th>
+                <th>Company Name</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.address or 'N/A' }}</td>
+                    <td>{{ user.company_name or 'N/A' }}</td>
+                    <td>{{ user.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     <h2>Job Requirements</h2>
     <p>Total Jobs: {{ jobs|length }}</p>
-    <ul>
-        {% for job in jobs %}
-            <li>{{ job.filename }} | Domain: {{ job.domain }} | Uploaded by User ID: {{ job.user_id }}</li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Domain</th>
+                <th>Uploaded by</th>
+                <th>Upload Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td>{{ job.filename }}</td>
+                    <td>{{ job.domain or 'N/A' }}</td>
+                    <td>{{ job.user.username }}</td>
+                    <td>{{ job.upload_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     <h2>Candidate CVs</h2>
     <p>Total CVs: {{ cvs|length }}</p>
-    <ul>
-        {% for cv in cvs %}
-            <li>{{ cv.filename }} | Domain: {{ cv.domain }} | Uploaded by User ID: {{ cv.user_id }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Domain</th>
+                <th>Uploaded by</th>
+                <th>Upload Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cv in cvs %}
+                <tr>
+                    <td>{{ cv.id }}</td>
+                    <td>{{ cv.filename }}</td>
+                    <td>{{ cv.domain or 'N/A' }}</td>
+                    <td>{{ cv.user.username }}</td>
+                    <td>{{ cv.upload_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('admin.logout') }}">Logout</a>
+</div>
+{% endblock %}
+

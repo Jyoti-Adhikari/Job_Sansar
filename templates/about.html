@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}About Job Sansar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/homepage.css') }}">
+<style>
+    .about-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .about-container h1 {
+        color: #ff6b00; /* Orange */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .about-container h2 {
+        color: #ff6b00;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    .about-container p {
+        line-height: 1.6;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .about-container ul {
+        margin-left: 20px;
+        color: #333;
+    }
+
+    .about-container li {
+        margin-bottom: 8px;
+    }
+
+    .about-container img {
+        display: block;
+        margin: 20px auto;
+        max-width: 80%;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <h1>About Job Sansar</h1>
+
+    <p>Job Sansar is a modern AI-powered job portal designed to connect job seekers (candidates) with job providers efficiently and intelligently. 
+    Our platform leverages advanced AI techniques to match resumes with job descriptions, helping both employers and candidates save time and find the best fit.</p>
+
+    <h2>Key Features</h2>
+    <ul>
+        <li><strong>AI Matching:</strong> Uses BERT-based sentence embeddings to rank CVs against job descriptions.</li>
+        <li><strong>Role-Based Login:</strong> Separate dashboards for Candidates and Job Givers for a personalized experience.</li>
+        <li><strong>Secure Uploads:</strong> Candidates can upload CVs, and Job Givers can upload job postings.</li>
+        <li><strong>Domain-Based Matching:</strong> Jobs and CVs are matched according to their domain (Engineering, IT, Healthcare, Education, etc.).</li>
+        <li><strong>Feedback System:</strong> Logged-in users can provide feedback directly to the admin panel for continuous improvement.</li>
+        <li><strong>User Management:</strong> Admin can view all registered users and submitted feedback in one place.</li>
+    </ul>
+
+    <h2>How It Works</h2>
+    <p>1. Job Givers upload job descriptions specifying the required domain.<br>
+       2. Candidates upload their CVs with the corresponding domain.<br>
+       3. Our AI engine analyzes job descriptions and CVs, computes similarity scores, and lists the best matches.<br>
+       4. Both parties can quickly access the best-fit matches for faster hiring and job application processes.</p>
+
+    <h2>Our Mission</h2>
+    <p>To bridge the gap between job seekers and employers using AI-driven solutions, making the recruitment process faster, smarter, and more accurate.</p>
+
+    <img src="{{ url_for('static', filename='images/cycling.jpg') }}" alt="AI Job Matching Illustration">
+</div>
+{% endblock %}

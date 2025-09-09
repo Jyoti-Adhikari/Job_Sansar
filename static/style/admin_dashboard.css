@@ -1,0 +1,99 @@
+/* Admin Dashboard Styles */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #ff6600; /* Orange theme */
+    margin-bottom: 20px;
+}
+
+a {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    padding: 8px 15px;
+    background-color: #ff6600;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+a:hover {
+    background-color: #e65c00;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #ff6600;
+    color: #fff;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table tr:hover {
+    background-color: #ffe6cc;
+}
+
+p {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Responsive table */
+@media screen and (max-width: 768px) {
+    .table, .table thead, .table tbody, .table th, .table td, .table tr {
+        display: block;
+    }
+
+    .table tr {
+        margin-bottom: 15px;
+    }
+
+    .table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .table th {
+        display: none;
+    }
+}
