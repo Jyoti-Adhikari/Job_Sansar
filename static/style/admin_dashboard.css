@@ -27,7 +27,7 @@ a {
     margin-right: 15px;
     margin-bottom: 15px;
     padding: 8px 15px;
-    background-color: #ff6600;
+    background-color: white;
     color: #fff;
     text-decoration: none;
     border-radius: 6px;
@@ -35,7 +35,7 @@ a {
 }
 
 a:hover {
-    background-color: #e65c00;
+    background-color: #c2997f;
 }
 
 .table {

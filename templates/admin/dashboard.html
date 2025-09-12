@@ -8,8 +8,7 @@
 {% block content %}
 <div class="container">
     <h1>Welcome, Admin {{ session.username }}</h1>
-    <a href="{{ url_for('admin.logout') }}">Logout</a>
-    <a href="{{ url_for('admin.view_feedback') }}">View Feedback</a>
+    <a href="{{ url_for('admin.view_feedback') }}"style="background-color: #ff6600; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px">View Feedback</a>
 
     <h2>Users</h2>
     <p>Total Users: {{ users|length }}</p>
@@ -87,7 +86,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{{ url_for('admin.logout') }}">Logout</a>
+    <a href="{{ url_for('admin.logout') }}"style="background-color: #ff6600; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px">Logout</a>
 </div>
 {% endblock %}
 
