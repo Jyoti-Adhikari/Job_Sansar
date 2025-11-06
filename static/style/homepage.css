@@ -1,129 +1,195 @@
-.home-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
+/* ============================================================= */
+/* ================  KOREAN PROFESSIONAL THEME  =============== */
+/* ============================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@700&display=swap');
+
+:root {
+    --orange: #ff6600;
+    --orange-dark: #e65c00;
+    --orange-light: #ff8533;
+    --white: #ffffff;
+    --gray: #f8f9fc;
+    --text: #2d3748;
+    --shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.navbar {
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Noto Sans KR', sans-serif; color: var(--text); background: var(--gray); }
+
+.homepage { overflow-x: hidden; }
+
+/* ============================================================= */
+/* =========================  HERO  ============================ */
+/* ============================================================= */
+.hero {
+    min-height: 90vh;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-}
-
-.logo {
-    color: #ff4500;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.nav-links .nav-item {
-    margin: 0 15px;
-    text-decoration: none;
-    color: #ff4500;
-    font-size: 16px;
-}
-
-.auth-buttons .nav-item {
-    margin: 0 10px;
-    text-decoration: none;
-    font-size: 16px;
-}
-
-.btn {
-    padding: 8px 15px;
-    border-radius: 5px;
-}
-
-.get-started {
-    background-color: #ff4500;
-    color: white;
-}
-
-.hero-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 40px;
-    height: 60vh;
+    justify-content: center;
+    padding: 2rem 1rem;
     position: relative;
+    background: linear-gradient(135deg, #fff8f0 0%, #fff0e6 100%);
+    margin-top: -80px; /* Offset navbar */
 }
 
-.hero-image.left-image {
-    width: 50%;
-    height: 100%;
-}
-
-.hero-img {
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    gap: 3rem;
+    flex-wrap: wrap;
 }
 
 .hero-text {
-    width: 40%;
-    padding-top: 20px;
-    margin-top: 20vh;
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
 }
 
 .hero-text h1 {
-    font-size: 36px;
-    color: #333;
-    margin: 0;
-    line-height: 1.2;
+    font-family: 'Roboto', sans-serif;
+    font-size: 3.8rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    font-weight: 700;
 }
 
-.hero-text h1 span.orange-text {
-    color: #ff4500;
+.highlight {
+    color: var(--orange);
+    display: block;
+    font-size: 4.2rem;
 }
 
-.bottom-image.right-image {
-    width: 30%;
-    height: 40vh;
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+.tagline {
+    color: var(--text);
+    font-size: 2.8rem;
 }
 
-.bottom-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.subtitle {
+    font-size: 1.3rem;
+    color: #555;
+    margin-bottom: 2rem;
+    line-height: 1.6;
 }
 
-/* Footer Styles */
-.footer {
-    margin-top: 40px;
-    padding: 20px 0;
-    background-color: #f9f9f9;
-    border-top: 1px solid #ddd;
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.9rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    min-width: 160px;
+}
+
+.btn-primary {
+    background: var(--orange);
+    color: white;
+    box-shadow: 0 8px 20px rgba(255,102,0,0.3);
+}
+
+.btn-primary:hover {
+    background: var(--orange-dark);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(255,102,0,0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--orange);
+    border: 2px solid var(--orange);
+}
+
+.btn-outline:hover {
+    background: var(--orange);
+    color: white;
+    transform: translateY(-4px);
+}
+
+/* Image */
+.hero-image {
+    flex: 1;
+    min-width: 300px;
     text-align: center;
 }
 
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
+.illust {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    transition: transform 0.5s ease;
 }
 
-.footer-content p {
-    margin: 5px 0;
-    color: #666;
-    font-size: 14px;
+.illust:hover {
+    transform: scale(1.05);
 }
 
-.footer-links {
-    margin: 10px 0;
+/* Floating Bike */
+.floating-bike {
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+    width: 220px;
+    animation: float 6s ease-in-out infinite;
+    z-index: 1;
 }
 
-.footer-links .footer-item {
-    margin: 0 15px;
-    text-decoration: none;
-    color: #ff4500;
-    font-size: 14px;
+.bike-img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));
 }
 
-.footer-links .footer-item:hover {
-    text-decoration: underline;
+/* ============================================================= */
+/* =======================  ANIMATIONS  ======================= */
+/* ============================================================= */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-20px) rotate(2deg); }
+}
+
+.animate-fade-up { animation: fadeUp 1s ease-out; }
+.animate-slide-in { animation: slideIn 1s ease-out 0.3s both; }
+
+/* ============================================================= */
+/* =========================  RESPONSIVE  ===================== */
+/* ============================================================= */
+@media (max-width: 992px) {
+    .hero-content { flex-direction: column; text-align: center; }
+    .hero-text { max-width: 100%; }
+    .hero-text h1 { font-size: 3rem; }
+    .highlight { font-size: 3.4rem; }
+    .tagline { font-size: 2.4rem; }
+    .floating-bike { position: static; margin: 2rem auto; width: 180px; }
+}
+
+@media (max-width: 576px) {
+    .hero { padding: 1rem; }
+    .hero-text h1 { font-size: 2.5rem; }
+    .highlight { font-size: 2.8rem; }
+    .tagline { font-size: 2rem; }
+    .hero-buttons { justify-content: center; }
+    .btn { padding: 0.8rem 1.5rem; font-size: 1rem; }
 }

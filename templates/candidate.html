@@ -1,58 +1,74 @@
 {% extends "base.html" %}
 {% block title %}Candidate Dashboard{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <h2>Welcome, {{ username }} (Candidate)</h2>
+<div class="dashboard-wrapper">
+    <header class="dash-header">
+        <h2>Welcome, <span class="user-name">{{ username }}</span> (Candidate)</h2>
+        <a href="{{ url_for('precandidate') }}" class="link-back">Back to Overview</a>
+    </header>
+
+    <div style="text-align:center; margin:2rem 0;">
+    <a href="{{ url_for('saved_jobs') }}" class="btn-highlight">
+        <span>View Saved Jobs</span>
+        
+    </a>
+</div>
 
     <div class="dashboard-columns">
-        <!-- Left column: Upload Form -->
-        <div class="dashboard-upload">
+        <!-- Upload -->
+        <section class="dash-upload">
             <h3>Upload Your CV</h3>
-            <form method="POST" enctype="multipart/form-data">
-                <label for="domain">Select Domain:</label>
-                <select name="domain" required>
+            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                <label>Select Domain:</label>
+                <select name="domain" required class="select-input">
                     <option value="">--Select Domain--</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Information Technology">Information Technology</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Education">Education</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Design">Design</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Legal">Legal</option>
-                    <option value="Operations / Management">Operations / Management</option>
-                </select><br><br>
-                <input type="file" name="cv_file" required>
-                <button type="submit">Upload</button>
+                    {% for d in ["Engineering","Information Technology","Healthcare","Education","Finance","Marketing","Design","Sales","Legal","Operations / Management"] %}
+                    <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="file" name="cv_file" accept=".pdf" required class="file-input">
+                <button type="submit" class="btn-primary">Upload</button>
             </form>
-        </div>
+        </section>
 
-        <!-- Right column: Uploaded files -->
-        <div class="dashboard-files">
+        <!-- CV List -->
+        <section class="dash-files">
             <h3>Your Uploaded CVs</h3>
-            <ul>
+            {% if cvs %}
+            <div class="media-grid dash-grid">
                 {% for cv in cvs %}
-                <li>
-                    {{ cv.filename }} (Uploaded on {{ cv.upload_date.strftime('%Y-%m-%d %H:%M') }})
-                    <form method="POST" action="/candidate/delete/{{ cv.id }}" style="display:inline;">
-                        <button type="submit">Delete</button>
-                    </form>
-                    <form method="POST" action="/match-jobs" style="display:inline;">
-                        <input type="hidden" name="cv_id" value="{{ cv.id }}">
-                        <button type="submit">Find Matching Jobs</button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+                <article class="media-card cv-card">
+                    <div class="media-wrapper">
+                        <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}"
+                                class="pdf-preview" loading="lazy"></iframe>
+                    </div>
+                    <div class="media-meta">
+                        <h3 class="media-title">{{ cv.filename }}</h3>
+                        <p class="domain-badge">{{ cv.domain }}</p>
+                        <p class="date">Uploaded {{ cv.upload_date.strftime('%b %d, %Y %H:%M') }}</p>
 
-    <a href="{{ url_for('homepage') }}">← Go Back</a>
+                        <div class="card-actions">
+                            <form method="POST" action="{{ url_for('delete_cv', cv_id=cv.id) }}" class="inline">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('match_jobs') }}" class="inline">
+                                <input type="hidden" name="cv_id" value="{{ cv.id }}">
+                                <button type="submit" class="btn-success">Find Jobs</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state">No CVs uploaded yet.</p>
+            {% endif %}
+        </section>
+    </div>
 </div>
 {% endblock %}

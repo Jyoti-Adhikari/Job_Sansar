@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Pre-Candidate | Job Sansar{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="precandidate hero-bg-candidate">
+    <!-- HERO -->
+    <div class="hero-container">
+        <h1 class="hero-title animate-fade-down">
+            <span class="gradient-text">Land Your Dream Job</span><br>
+            <span class="highlight">Today</span>
+        </h1>
+        <p class="hero-subtitle animate-fade-up">
+            Upload your CV and let our AI connect you with top employers hiring **right now**.
+        </p>
+
+        <div class="cta-box animate-float">
+            <form action="{{ url_for('candidate') }}" method="GET">
+                <button type="submit" class="cta-btn pulse-glow">
+                    <span class="btn-icon">📄</span>
+                    <span class="btn-text">Upload CV Now</span>
+                    <span class="sparkle">✨</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="stats-bar animate-fade-up delay-1">
+            <div class="stat"><span class="icon">🤖</span> AI-Matched Jobs</div>
+            <div class="stat"><span class="icon">💼</span> Verified Openings</div>
+            <div class="stat"><span class="icon">⏰</span> Get Hired Faster</div>
+        </div>
+    </div>
+
+    <!-- JOB GRID -->
+    <div class="job-section">
+        <h2 class="section-title animate-fade-up delay-2">
+            <span class="icon">💼</span> Hot Jobs Waiting for You
+        </h2>
+
+        {% if jobs %}
+        <div class="media-grid">
+            {% for job in jobs %}
+            <article class="media-card job-card animate-scale-in" style="--delay: {{ loop.index * 0.1 }}s">
+                <div class="media-wrapper">
+                    <a href="{{ url_for('uploaded_job', filename=job.filename) }}" target="_blank" class="pdf-link">
+                        <iframe src="{{ url_for('uploaded_job', filename=job.filename) }}"
+                                class="pdf-preview" loading="lazy"></iframe>
+                        <div class="pdf-overlay">
+                            <span class="pdf-click-text">Click to open PDF</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="media-meta">
+                    <h3 class="media-title">{{ job.user.company_name or job.user.username }}</h3>
+                    <p class="domain-badge">{{ job.domain }}</p>
+                    <p class="date">Posted {{ job.upload_date.strftime('%b %d, %Y') }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state animate-fade-up delay-3">
+            No jobs yet — upload your CV to start getting matches! 🚀
+        </p>
+        {% endif %}
+
+        <div class="logout-link animate-fade-up delay-4">
+            <a href="{{ url_for('homepage') }}" class="link-primary">Log Out</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

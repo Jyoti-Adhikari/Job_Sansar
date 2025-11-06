@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block extra_css %}
+<style>
+.notifications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.notification-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.notification-card.unread {
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-sender {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    font-size: 1.5em;
+}
+
+.notification-type {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.notification-type.application {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.notification-type.invite {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.file-preview {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.file-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
+
+.notification-body {
+    margin: 15px 0;
+    line-height: 1.5;
+    font-size: 1.1em;
+}
+
+.notification-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    color: #666;
+}
+
+.badge {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.empty {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    margin: 40px 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+}
+
+.back-link:hover {
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.status-info {
+    font-style: italic;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.file-error {
+    color: #dc3545;
+    font-style: italic;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <h2>Your Notifications</h2>
+    <p><strong>Unread Notifications:</strong> <span id="unread-count" class="badge">{{ unread_count }}</span></p>
+
+    {% if messages %}
+    <div class="notifications-list">
+        {% for msg in messages %}
+        <div class="notification-card {% if not msg.is_read %}unread{% endif %}">
+            
+            {% if msg.message_type == 'application' and current_user.role == 'jobgiver' %}
+            <!-- Job Giver: Application Notification -->
+            <div class="notification-header">
+                <div class="notification-sender">
+                    <span class="avatar">🧑</span>
+                    <div>
+                        <strong>{{ msg.sender.username }}</strong>
+                        <small>Candidate Application</small>
+                    </div>
+                </div>
+                <span class="notification-type application">Application</span>
+            </div>
+            
+            <div class="file-preview">
+                <div class="file-section">
+                    <span class="file-icon">📄</span>
+                    <div class="file-info">
+                        <strong>Candidate CV</strong>
+                        {% if msg.sender.cvs %}
+                            {% set cv = msg.sender.cvs[0] %}
+                            <a href="{{ url_for('uploaded_cv', filename=cv.filename) }}" target="_blank" class="file-link">
+                                View CV: {{ cv.filename }}
+                            </a>
+                        {% else %}
+                            <span class="file-error">CV not available</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-body">
+                💬 <strong>{{ msg.sender.username }}</strong> has applied for your job.
+            </div>
+            
+            <div class="notification-footer">
+                <small>Received: {{ msg.sent_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <div class="status-info">No action required</div>
+            </div>
+
+            {% elif msg.message_type == 'invite' and current_user.role == 'candidate' %}
+            <!-- Candidate: Invite Notification -->
+            <div class="notification-header">
+                <div class="notification-sender">
+                    <span class="avatar">🏢</span>
+                    <div>
+                        <strong>{{ msg.sender.company_name or msg.sender.username }}</strong>
+                        <small>Job Invitation</small>
+                    </div>
+                </div>
+                <span class="notification-type invite">Invitation</span>
+            </div>
+            
+            <div class="file-preview">
+                <div class="file-section">
+                    <span class="file-icon">📋</span>
+                    <div class="file-info">
+                        <strong>Job Requirements</strong>
+                        {% if msg.sender.job_requirements %}
+                            {% set job = msg.sender.job_requirements[0] %}
+                            <a href="{{ url_for('uploaded_job', filename=job.filename) }}" target="_blank" class="file-link">
+                                View Job: {{ job.filename }}
+                            </a>
+                        {% else %}
+                            <span class="file-error">Job details not available</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-body">
+                💬 You have been invited by <strong>{{ msg.sender.company_name or msg.sender.username }}</strong> for a job position.
+            </div>
+            
+            <div class="notification-footer">
+                <small>Received: {{ msg.sent_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <div class="status-info">No action required</div>
+            </div>
+
+            {% elif msg.message_type == 'application' and current_user.role == 'candidate' %}
+            <!-- Candidate: Application Confirmation (if needed) -->
+            <div class="notification-header">
+                <div class="notification-sender">
+                    <span class="avatar">✅</span>
+                    <div>
+                        <strong>Application Sent</strong>
+                        <small>Confirmation</small>
+                    </div>
+                </div>
+                <span class="notification-type application">Application</span>
+            </div>
+            
+            <div class="notification-body">
+                💬 Your application has been sent successfully.
+            </div>
+            
+            <div class="notification-footer">
+                <small>Sent: {{ msg.sent_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <div class="status-info">Application submitted</div>
+            </div>
+
+            {% elif msg.message_type == 'invite' and current_user.role == 'jobgiver' %}
+            <!-- Job Giver: Invite Sent Confirmation (if needed) -->
+            <div class="notification-header">
+                <div class="notification-sender">
+                    <span class="avatar">📤</span>
+                    <div>
+                        <strong>Invite Sent</strong>
+                        <small>Confirmation</small>
+                    </div>
+                </div>
+                <span class="notification-type invite">Invitation</span>
+            </div>
+            
+            <div class="notification-body">
+                💬 Your invitation has been sent successfully.
+            </div>
+            
+            <div class="notification-footer">
+                <small>Sent: {{ msg.sent_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <div class="status-info">Invitation sent</div>
+            </div>
+
+            {% else %}
+            <!-- Default notification for other message types -->
+            <div class="notification-header">
+                <div class="notification-sender">
+                    <span class="avatar">💬</span>
+                    <div>
+                        <strong>{{ msg.sender.username }}</strong>
+                        <small>{{ msg.message_type|capitalize }}</small>
+                    </div>
+                </div>
+                <span class="notification-type {{ msg.message_type }}">{{ msg.message_type|capitalize }}</span>
+            </div>
+            
+            {% if msg.file_type == 'cv' and get_cv_filename(msg.file_id) != 'unknown.pdf' %}
+            <div class="file-preview">
+                <div class="file-section">
+                    <span class="file-icon">📄</span>
+                    <div class="file-info">
+                        <strong>CV File</strong>
+                        <a href="{{ url_for('uploaded_cv', filename=get_cv_filename(msg.file_id)) }}" target="_blank" class="file-link">
+                            View CV: {{ get_cv_filename(msg.file_id) }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% elif msg.file_type == 'job' and get_job_filename(msg.file_id) != 'unknown.pdf' %}
+            <div class="file-preview">
+                <div class="file-section">
+                    <span class="file-icon">📋</span>
+                    <div class="file-info">
+                        <strong>Job File</strong>
+                        <a href="{{ url_for('uploaded_job', filename=get_job_filename(msg.file_id)) }}" target="_blank" class="file-link">
+                            View Job: {{ get_job_filename(msg.file_id) }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="notification-body">{{ msg.message }}</div>
+            <div class="notification-footer">
+                <small>{{ msg.sent_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <div class="status-info">Notification only</div>
+            </div>
+            {% endif %}
+            
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">No notifications yet.</p>
+    {% endif %}
+
+    <!-- BACK BUTTON -->
+    {% if current_user.role == 'jobgiver' %}
+        <a href="{{ url_for('jobgiver') }}" class="back-link">← Back to Job Giver Dashboard</a>
+    {% elif current_user.role == 'candidate' %}
+        <a href="{{ url_for('candidate') }}" class="back-link">← Back to Candidate Dashboard</a>
+    {% endif %}
+</div>
+
+<script>
+// Auto-mark messages as read when viewed
+document.addEventListener('DOMContentLoaded', function() {
+    const unreadCards = document.querySelectorAll('.notification-card.unread');
+    
+    unreadCards.forEach(card => {
+        // Mark as read when user clicks on the card
+        card.addEventListener('click', function() {
+            if (this.classList.contains('unread')) {
+                this.classList.remove('unread');
+                
+                // Update unread count
+                const unreadCount = document.getElementById('unread-count');
+                if (unreadCount) {
+                    let currentCount = parseInt(unreadCount.textContent);
+                    if (currentCount > 0) {
+                        unreadCount.textContent = currentCount - 1;
+                    }
+                }
+            }
+        });
+        
+        // Optional: Auto-mark as read after 3 seconds of being visible
+        setTimeout(() => {
+            if (card.classList.contains('unread')) {
+                card.classList.remove('unread');
+                
+                // Update unread count
+                const unreadCount = document.getElementById('unread-count');
+                if (unreadCount) {
+                    let currentCount = parseInt(unreadCount.textContent);
+                    if (currentCount > 0) {
+                        unreadCount.textContent = currentCount - 1;
+                    }
+                }
+            }
+        }, 3000);
+    });
+});
+
+// Refresh inbox data periodically
+setInterval(() => {
+    fetch('/inbox-data')
+        .then(response => response.json())
+        .then(data => {
+            // Update unread count
+            const unreadCount = document.getElementById('unread-count');
+            if (unreadCount) {
+                unreadCount.textContent = data.unread;
+            }
+        })
+        .catch(error => console.error('Error fetching inbox data:', error));
+}, 30000); // Refresh every 30 seconds
+</script>
+{% endblock %}

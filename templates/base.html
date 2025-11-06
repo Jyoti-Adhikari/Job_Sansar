@@ -3,44 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Job Portal{% endblock %}</title>
+    <title>{% block title %}Job Sansar{% endblock %}</title>
+
+    <!-- Main CSS (Orange Theme) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+
+    <!-- Page-specific CSS -->
     {% block extra_css %}{% endblock %}
+
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
+
     <!-- Header -->
-    <header>
-        <h1>Job Sansar</h1>
-        <nav>
-            <a href="{{ url_for('homepage') }}">Home</a>
-            <a href="{{ url_for('about') }}">About</a>
-            <a href="{{ url_for('contact') }}">Contact</a>
-        </nav>
+    <header class="site-header">
+        <div class="container header-content">
+            <h1 class="logo">
+                <a href="{{ url_for('homepage') }}">Job Sansar</a>
+            </h1>
+            <nav class="nav-links">
+              <!-- Inside <nav> -->
+
+                <a href="{{ url_for('homepage') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('inbox') }}">Notification </a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+                {% if 'username' in session %}
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                {% endif %}
+            </nav>
+        </div>
     </header>
 
     <!-- Flash Messages -->
-    <main>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for msg in messages %}
-              <p class="flash-message">{{ msg }}</p>
-            {% endfor %}
-          {% endif %}
+    <section class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message alert-{{ category }}">
+                        <span>{{ message }}</span>
+                        <button type="button" class="close-btn" onclick="this.parentElement.remove()">x</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
+    </section>
 
+    <!-- Main Content -->
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer>
-        <p>© 2025 Job Sansar. All rights reserved.</p>
-        <p>
-            <nav>
-              <a href="{{ url_for('homepage') }}" class="footer-item">About</a>
-              <a href="{{ url_for('contact') }}" class="footer-item">Contact</a>
-              <a href="{{ url_for('privacy') }}" class="footer-item">Privacy Policy</a>
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <p>© 2025 <strong>Job Sansar</strong>. All rights reserved.</p>
+            <nav class="footer-nav">
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+                <a href="{{ url_for('privacy') }}">Privacy Policy</a>
             </nav>
-        </p>
+        </div>
     </footer>
+
+    <!-- Page-specific JS -->
+    {% block extra_js %}{% endblock %}
+    <script>
+    console.log('Base template loaded');
+</script>
+
 </body>
 </html>

@@ -1,58 +1,41 @@
 {% extends "base.html" %}
-{% block title %}Candidate Matches{% endblock %}
+{% block title %}Shortlisted CVs{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='style/matches.css') }}">{% endblock %}
 
 {% block content %}
 <div class="matches-container">
-    <h2>Matching Candidates for Job: <strong>{{ job_file }}</strong></h2>
-    {% if results %}
+    <h2>Shortlisted Candidates</h2>
+    {% if items %}
     <div class="matches-grid">
-        {% for filename, score, domain, cv_id in results %}
-            <article class="match-card" id="cv-{{ cv_id }}">
-                <div class="pdf-wrapper">
-                    <a href="{{ url_for('uploaded_cv', filename=filename) }}" target="_blank" class="pdf-link">
-                    <iframe src="{{ url_for('uploaded_cv', filename=filename) }}" class="pdf-preview"></iframe>
-                <div class="pdf-overlay">
-                    <span class="pdf-click-text">Click to open PDF</span>
-                 </div>
-                </a>
+        {% for shortlist, cv, user in items %}
+        <article class="match-card" id="cv-{{ cv.id }}">
+            <div class="pdf-wrapper">
+                <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}" class="pdf-preview"></iframe>
             </div>
             <div class="match-info">
-                <h3>{{ filename }}</h3>
-                <div class="score-circle" style="--percent: {{ score / 100 }};">
-                    <span class="score-text">{{ score }}%</span>
-                </div>
-                <p class="domain-badge">{{ domain }}</p>
+                <h3>{{ cv.filename }}</h3>
+                <p><strong>Candidate:</strong> {{ user.username }}</p>
+                <p class="domain-badge">{{ cv.domain }}</p>
             </div>
             <div class="action-buttons">
-                {% if cv_id and cv_id != 0 %}
-                    {% set is_shortlisted = shortlist_map.get(cv_id) %}
-                    {% if is_shortlisted %}
-                        <button class="btn-shortlist" disabled style="background:#28a745;">Shortlisted</button>
-                    {% else %}
-                        <button class="btn-shortlist" onclick="shortlistCV('{{ cv_id }}', this)">Shortlist CV</button>
-                    {% endif %}
-                    <button class="btn-invite" onclick="sendInvite('{{ cv_id }}', this)">Invite</button>
-                {% else %}
-                    <button class="btn-shortlist" disabled>Shortlist CV</button>
-                    <button class="btn-invite" disabled>Invite</button>
-                {% endif %}
+                <button class="btn-remove" onclick="removeShortlist('{{ cv.id }}', this)">Remove</button>
+                <button class="btn-invite" onclick="sendInvite('{{ cv.id }}', this)">Invite</button>
             </div>
         </article>
         {% endfor %}
     </div>
     {% else %}
-    <p class="no-results">No matching candidates found.</p>
+    <p class="no-results">No shortlisted CVs yet.</p>
     {% endif %}
     <a href="{{ url_for('jobgiver') }}" class="back-link">Back to Dashboard</a>
 </div>
 
 <script>
-function shortlistCV(cv_id, button) {
-    console.log('Shortlisting CV:', cv_id);
+function removeShortlist(cv_id, button) {
+    console.log('Removing from shortlist:', cv_id);
     cv_id = parseInt(cv_id);
     
-    fetch('/shortlist-cv', {
+    fetch('/remove-shortlist', {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({cv_id})
@@ -61,21 +44,33 @@ function shortlistCV(cv_id, button) {
     .then(d => {
         console.log('Response:', d);
         if (d.success) {
-            // Update button immediately
-            button.textContent = "Shortlisted"; 
-            button.disabled = true; 
-            button.style.background = "#28a745";
-            button.onclick = null;
+            // Remove the card from the UI immediately
+            const card = document.getElementById(`cv-${cv_id}`);
+            if (card) {
+                card.remove();
+            }
             
-            // Show success message on page
-            showMessage('CV shortlisted successfully!', 'success');
+            // Update count if element exists
+            const countEl = document.getElementById('shortlisted-count');
+            if (countEl) {
+                let n = parseInt(countEl.textContent) || 1;
+                countEl.textContent = Math.max(0, n - 1);
+            }
+            
+            // If no items left, show message
+            const grid = document.querySelector('.matches-grid');
+            if (grid && grid.children.length === 0) {
+                grid.innerHTML = '<p class="no-results">No shortlisted CVs yet.</p>';
+            }
+            
+            showMessage('Removed from shortlist successfully!', 'success');
         } else {
-            showMessage(d.error || 'Error shortlisting CV', 'error');
+            showMessage(d.error || 'Error removing from shortlist', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showMessage('Error shortlisting CV', 'error');
+        showMessage('Error removing from shortlist', 'error');
     });
 }
 

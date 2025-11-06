@@ -1,55 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Job Portal</title>
-    <link rel="stylesheet" href="static/style/homepage.css">
-</head>
-<body>
-    <div class="home-container">
-        <!-- Navigation bar -->
-        <div class="navbar">
-            <div class="logo">Job Sansar</div>
-            <div class="nav-links">
-                <a href="{{ url_for('homepage') }}" class="nav-item">Home</a>
-                <a href="{{ url_for('about') }}" class="nav-item">About</a>
-                <a href="{{ url_for('contact') }}" class="nav-item">Contact</a>
-                
-            </div>
-            <div class="auth-buttons">
-                <a href="/login" class="nav-item btn">Log in</a>
-                <a href="/register" class="nav-item btn get-started">Register</a>
-            </div>
-        </div>
+{% extends "base.html" %}
+{% block title %}Job Sansar - Find Your Dream Job{% endblock %}
 
-        <!-- Hero section -->
-        <div class="hero-section">
-            <div class="hero-image left-image">
-                <img src="static/images/sitting.jpg" alt="Working Illustration" class="hero-img">
-            </div>
-            <div class="hero-text">
-                <h1><span class="orange-text">JOB SANSAR</span><br>Get your ideal job</h1>
-            </div>
-        </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/homepage.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@700&display=swap" rel="stylesheet">
+{% endblock %}
 
-        <!-- Bottom image section -->
-        <div class="bottom-image right-image">
-            <img src="static/images/cycling.jpg" alt="Cycling Illustration" class="bottom-img">
-        </div>
+{% block content %}
+<div class="homepage">
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <p>&copy; 2025 Job Sansar. All rights reserved.</p>
-                <div class="footer-links">
-                    <a href="{{ url_for('homepage') }}" class="footer-item">About</a>
-                    <a href="{{ url_for('contact') }}" class="footer-item">Contact</a>
-                    <a href="{{ url_for('privacy') }}" class="footer-item">Privacy Policy</a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text animate-fade-up">
+                <h1>
+                    <span class="highlight">JOB SANSAR</span><br>
+                    <span class="tagline">Get Your Ideal Job</span>
+                </h1>
+                <p class="subtitle">AI-powered job matching for candidates and employers</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
                 </div>
-                
             </div>
-        </footer>
-    </div>
-</body>
-</html>
+            <div class="hero-image animate-slide-in">
+                <img src="{{ url_for('static', filename='images/sitting.jpg') }}" alt="Working Professional" class="illust">
+            </div>
+        </div>
+        <div class="floating-bike">
+            <img src="{{ url_for('static', filename='images/cycling.jpg') }}" alt="Success" class="bike-img">
+        </div>
+    </section>
+
+    <!-- Footer (already in base.html, but kept for fallback) -->
+</div>
+{% endblock %}

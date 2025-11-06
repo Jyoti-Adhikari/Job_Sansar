@@ -1,0 +1,187 @@
+.inbox-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.msg-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.msg-card.unread {
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+}
+
+.msg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.msg-sender {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar {
+    font-size: 1.2em;
+}
+
+.msg-type {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.msg-type.application {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.msg-type.invite {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.msg-file-preview {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.file-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
+
+.msg-body {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.msg-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.btn-invite, .btn-accept, .btn-mark-read {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-invite {
+    background: #007bff;
+    color: white;
+}
+
+.btn-accept {
+    background: #28a745;
+    color: white;
+}
+
+.btn-mark-read {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-invite:hover {
+    background: #0056b3;
+}
+
+.btn-accept:hover {
+    background: #218838;
+}
+
+.btn-mark-read:hover {
+    background: #545b62;
+}
+
+.btn-invite:disabled, .btn-accept:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.badge {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.empty {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    margin: 40px 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+    font-weight: bold;
+}
+
+.success-message {
+    background: #28a745;
+}
+
+.error-message {
+    background: #dc3545;
+}

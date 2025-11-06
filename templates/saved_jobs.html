@@ -1,57 +1,41 @@
 {% extends "base.html" %}
-{% block title %}Job Matches{% endblock %}
+{% block title %}Saved Jobs{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='style/matches.css') }}">{% endblock %}
 
 {% block content %}
 <div class="matches-container">
-    <h2>Matching Jobs for CV: <strong>{{ cv_file }}</strong></h2>
-    {% if results %}
+    <h2>Saved Jobs</h2>
+    {% if items %}
     <div class="matches-grid">
-        {% for filename, score, domain, job_id in results %}
-            <article class="match-card" id="job-{{ job_id }}">
+        {% for save, job, user in items %}
+        <article class="match-card" id="job-{{ job.id }}">
             <div class="pdf-wrapper">
-             <a href="{{ url_for('uploaded_job', filename=filename) }}" target="_blank" class="pdf-link">
-                    <iframe src="{{ url_for('uploaded_job', filename=filename) }}" class="pdf-preview"></iframe>
-                    <div class="pdf-overlay">
-                        <span class="pdf-click-text">Click to open PDF</span>
-                    </div>
-                </a>
+                <iframe src="{{ url_for('uploaded_job', filename=job.filename) }}" class="pdf-preview"></iframe>
             </div>
             <div class="match-info">
-                <h3>{{ filename }}</h3>
-                <div class="score-circle" style="--percent: {{ score / 100 }};">
-                    <span class="score-text">{{ score }}%</span>
-                </div>
-                <p class="domain-badge">{{ domain }}</p>
+                <h3>{{ job.filename }}</h3>
+                <p><strong>Company:</strong> {{ user.company_name or user.username }}</p>
+                <p class="domain-badge">{{ job.domain }}</p>
             </div>
             <div class="action-buttons">
-                {% if job_id and job_id != 0 %}
-                    {% if saved_map.get(job_id) %}
-                        <button class="btn-save" disabled style="background:#28a745;">Saved</button>
-                    {% else %}
-                        <button class="btn-save" onclick="saveJob('{{ job_id }}', this)">Save Job</button>
-                    {% endif %}
-                    <button class="btn-apply" onclick="applyJob('{{ job_id }}', this)">Apply Now</button>
-                {% else %}
-                    <button class="btn-save" disabled>Save Job</button>
-                    <button class="btn-apply" disabled>Apply Now</button>
-                {% endif %}
+                <button class="btn-remove" onclick="removeSavedJob('{{ job.id }}', this)">Remove</button>
+                <button class="btn-apply" onclick="applyJob('{{ job.id }}', this)">Apply Now</button>
             </div>
         </article>
         {% endfor %}
     </div>
     {% else %}
-    <p class="no-results">No matching jobs found.</p>
+    <p class="no-results">No saved jobs yet.</p>
     {% endif %}
     <a href="{{ url_for('candidate') }}" class="back-link">Back to Dashboard</a>
 </div>
 
 <script>
-function saveJob(job_id, button) {
-    console.log('Saving job:', job_id);
+function removeSavedJob(job_id, button) {
+    console.log('Removing saved job:', job_id);
     job_id = parseInt(job_id);
     
-    fetch('/save-job', {
+    fetch('/remove-saved-job', {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({job_id})
@@ -60,27 +44,33 @@ function saveJob(job_id, button) {
     .then(d => {
         console.log('Response:', d);
         if (d.success) {
-            // Update button immediately
-            button.textContent = "Saved"; 
-            button.disabled = true; 
-            button.style.background = "#28a745";
-            button.onclick = null;
+            // Remove the card from the UI immediately
+            const card = document.getElementById(`job-${job_id}`);
+            if (card) {
+                card.remove();
+            }
             
             // Update count if element exists
             const countEl = document.getElementById('saved-count');
             if (countEl) {
-                let n = parseInt(countEl.textContent) || 0;
-                countEl.textContent = n + 1;
+                let n = parseInt(countEl.textContent) || 1;
+                countEl.textContent = Math.max(0, n - 1);
             }
             
-            showMessage('Job saved successfully!', 'success');
+            // If no items left, show message
+            const grid = document.querySelector('.matches-grid');
+            if (grid && grid.children.length === 0) {
+                grid.innerHTML = '<p class="no-results">No saved jobs yet.</p>';
+            }
+            
+            showMessage('Job removed from saved list!', 'success');
         } else {
-            showMessage(d.error || 'Error saving job', 'error');
+            showMessage(d.error || 'Error removing saved job', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showMessage('Error saving job', 'error');
+        showMessage('Error removing saved job', 'error');
     });
 }
 

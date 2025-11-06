@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Pre-JobGiver | Job Sansar{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="prejobgiver hero-bg">
+    <!-- HERO -->
+    <div class="hero-container">
+        <h1 class="hero-title animate-fade-down">
+            <span class="gradient-text">Hire the Best Talent</span><br>
+            <span class="highlight">in Seconds</span>
+        </h1>
+        <p class="hero-subtitle animate-fade-up">
+            Post your job requirement **now** and let our AI instantly match you with the perfect candidates.
+        </p>
+
+        <div class="cta-box animate-float">
+            <form action="{{ url_for('jobgiver') }}" method="GET">
+                <button type="submit" class="cta-btn pulse-glow">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">Launch Job Post</span>
+                    <span class="sparkle">✨</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="stats-bar animate-fade-up delay-1">
+            <div class="stat"><span class="icon">🧠</span> AI-Powered Matching</div>
+            <div class="stat"><span class="icon">👥</span> 500+ Active Candidates</div>
+            <div class="stat"><span class="icon">⚡</span> Results in < 10 s</div>
+        </div>
+    </div>
+
+    <!-- CV GRID -->
+    <div class="cv-section">
+        <h2 class="section-title animate-fade-up delay-2">
+            <span class="icon">💼</span> Talent Waiting for You
+        </h2>
+
+        {% if cvs %}
+        <div class="media-grid">
+            {% for cv in cvs %}
+            <article class="media-card cv-card animate-scale-in" style="--delay: {{ loop.index * 0.1 }}s">
+                <div class="media-wrapper">
+                    <a href="{{ url_for('uploaded_cv', filename=cv.filename) }}" target="_blank" class="pdf-link">
+                        <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}"
+                                class="pdf-preview" loading="lazy"></iframe>
+                        <div class="pdf-overlay">
+                            <span class="pdf-click-text">Click to open PDF</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="media-meta">
+                    <h3 class="media-title">{{ cv.user.username }}</h3>
+                    <p class="domain-badge">{{ cv.domain }}</p>
+                    <p class="date">Uploaded {{ cv.upload_date.strftime('%b %d, %Y') }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state animate-fade-up delay-3">
+            No candidates yet — be the first to post and watch them flood in! ⭐
+        </p>
+        {% endif %}
+
+        <div class="logout-link animate-fade-up delay-4">
+            <a href="{{ url_for('homepage') }}" class="link-primary">Log Out</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

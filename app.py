@@ -1,5 +1,5 @@
 # Import necessary libraries from Flask and other packages
-from flask import Flask, render_template, request, redirect, session, flash, send_from_directory, url_for
+from flask import Flask, render_template, request, redirect, session, flash, send_from_directory, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -77,6 +77,131 @@ class Feedback(db.Model):
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref='feedback')
 
+class Application(db.Model):
+    __tablename__ = 'applications'
+    id = db.Column(db.Integer, primary_key=True)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job_requirements.id'), nullable=False)
+    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='pending')
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    file_type = db.Column(db.String(10), nullable=False)  # 'cv' or 'job'
+    file_id = db.Column(db.Integer, nullable=False)
+    message_type = db.Column(db.String(20), nullable=False)  # 'inquiry', 'invite', 'application'
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    receiver = db.relationship('User', foreign_keys=[receiver_id])
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20), nullable=False)
+    related_id = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+
+
+class Shortlist(db.Model):
+    __tablename__ = 'shortlists'
+    id = db.Column(db.Integer, primary_key=True)
+    jobgiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    cv_id = db.Column(db.Integer, db.ForeignKey('candidate_cvs.id'), nullable=False)
+    shortlisted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SavedJob(db.Model):
+    __tablename__ = 'saved_jobs'
+    id = db.Column(db.Integer, primary_key=True)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job_requirements.id'), nullable=False)
+    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# =====================
+# HELPER FUNCTIONS 
+# =====================
+def get_cv_filename(cv_id):
+    cv = CandidateCV.query.get(cv_id)
+    return cv.filename if cv else "unknown.pdf"
+
+def get_job_filename(job_id):
+    job = JobRequirement.query.get(job_id)
+    return job.filename if job else "unknown.pdf"
+
+def get_filename_from_message(message):
+    """
+    Get the correct filename based on message type and file_type
+    """
+    if message.message_type == 'application':
+        # For applications: file_id is job_id, file_type is 'job'
+        if message.file_type == 'job':
+            job = JobRequirement.query.get(message.file_id)
+            return job.filename if job else "unknown.pdf"
+    elif message.message_type == 'invite':
+        # For invites: file_id is cv_id, file_type is 'cv'  
+        if message.file_type == 'cv':
+            cv = CandidateCV.query.get(message.file_id)
+            return cv.filename if cv else "unknown.pdf"
+    
+    return "unknown.pdf"
+
+def get_file_url_from_message(message):
+    """
+    Get the correct file URL based on message type
+    """
+    filename = get_filename_from_message(message)
+    
+    if message.message_type == 'application' and message.file_type == 'job':
+        return url_for('uploaded_job', filename=filename)
+    elif message.message_type == 'invite' and message.file_type == 'cv':
+        return url_for('uploaded_cv', filename=filename)
+    elif message.file_type == 'cv':
+        return url_for('uploaded_cv', filename=filename)
+    elif message.file_type == 'job':
+        return url_for('uploaded_job', filename=filename)
+    
+    return "#"
+
+def get_sender_cv_filename(sender_id):
+    """Get the first CV filename from a sender (user)"""
+    sender = User.query.get(sender_id)
+    if sender and sender.cvs:
+        return sender.cvs[0].filename
+    return "unknown.pdf"
+
+def get_sender_job_filename(sender_id):
+    """Get the first job filename from a sender (user)"""
+    sender = User.query.get(sender_id)
+    if sender and sender.job_requirements:
+        return sender.job_requirements[0].filename
+    return "unknown.pdf"
+
+def notify(user_id, title, body, type_, related_id):
+    n = Notification(user_id=user_id, title=title, body=body, type=type_, related_id=related_id)
+    db.session.add(n)
+    db.session.commit()
+
+# Make functions available to templates
+@app.context_processor
+def utility_processor():
+    return dict(
+        get_cv_filename=get_cv_filename,
+        get_job_filename=get_job_filename,
+        get_filename_from_message=get_filename_from_message,
+        get_file_url_from_message=get_file_url_from_message,
+        get_sender_cv_filename=get_sender_cv_filename,
+        get_sender_job_filename=get_sender_job_filename
+    )
+
 # =====================
 # ROUTES
 # =====================
@@ -104,7 +229,7 @@ def login():
         if user:
             session['username'] = user.username
             session['role'] = user.role
-            next_url = request.form.get('next') or ('/candidate' if role == 'candidate' else '/jobgiver' if role == 'jobgiver' else '/admin')
+            next_url = request.form.get('next') or ('/precandidate' if role == 'candidate' else '/prejobgiver' if role == 'jobgiver' else '/admin')
             return redirect(next_url)
         else:
             flash("Invalid login credentials.", "error")
@@ -170,10 +295,44 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
+@app.route('/precandidate', methods=['GET', 'POST'])
+def precandidate():
+    # Fetch all job files uploaded by job givers
+    jobs = JobRequirement.query.all()
+
+    # If candidate uploads a CV
+    if request.method == 'POST':
+        file = request.files.get('cv_file')
+        domain = request.form.get('domain')
+
+        if not file:
+            flash("Please select a CV file.", "error")
+            return redirect(url_for('precandidate'))
+
+        # Only allow PDF files
+        if not file.filename.lower().endswith('.pdf'):
+            flash("Only PDF files are allowed!", "error")
+            return redirect(url_for('precandidate'))
+
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(app.config['CANDIDATE_UPLOADS'], filename)
+        file.save(save_path)
+
+        flash("CV uploaded successfully!", "success")
+        return redirect(url_for('precandidate'))
+
+    # Show the page
+    return render_template('precandidate.html', jobs=jobs)
+
+
 @app.route('/candidate', methods=['GET', 'POST'])
 def candidate():
     if 'role' in session and session['role'] == 'candidate':
         user = User.query.filter_by(username=session['username']).first()
+
+        # Fetch all job givers' uploaded job requirement PDFs
+        jobs = JobRequirement.query.all()
+
         if request.method == 'POST':
             file = request.files['cv_file']
             domain = request.form.get('domain')
@@ -182,15 +341,28 @@ def candidate():
                 if not filename.lower().endswith('.pdf'):
                     flash("Only PDFs allowed!", "error")
                     return redirect(url_for('candidate'))
+
                 path = os.path.join(app.config['CANDIDATE_UPLOADS'], filename)
                 file.save(path)
+
                 new_cv = CandidateCV(user_id=user.id, filename=filename, domain=domain)
                 db.session.add(new_cv)
                 db.session.commit()
+
                 flash("CV uploaded!", "success")
+
         cvs = CandidateCV.query.filter_by(user_id=user.id).all()
-        return render_template('candidate.html', cvs=cvs, username=user.username)
+
+        # pass jobs to template
+        return render_template(
+            'candidate.html',
+            cvs=cvs,
+            username=user.username,
+            jobs=jobs
+        )
+
     return redirect(url_for('login'))
+
 
 @app.route('/jobgiver', methods=['GET', 'POST'])
 def jobgiver():
@@ -199,11 +371,8 @@ def jobgiver():
         if request.method == 'POST':
             file = request.files['job_file']
             domain = request.form.get('domain')
-            if file:
+            if file and file.filename.lower().endswith('.pdf'):
                 filename = secure_filename(file.filename)
-                if not filename.lower().endswith('.pdf'):
-                    flash("Only PDFs allowed!", "error")
-                    return redirect(url_for('jobgiver'))
                 path = os.path.join(app.config['JOBGIVER_UPLOADS'], filename)
                 file.save(path)
                 new_job = JobRequirement(user_id=user.id, filename=filename, domain=domain)
@@ -213,6 +382,16 @@ def jobgiver():
         job_files = JobRequirement.query.filter_by(user_id=user.id).all()
         return render_template('jobgiver.html', job_files=job_files, username=user.username)
     return redirect(url_for('login'))
+
+
+@app.route('/prejobgiver')
+def prejobgiver():
+    if 'role' in session and session['role'] == 'jobgiver':
+        cvs = CandidateCV.query.all()
+        user = User.query.filter_by(username=session['username']).first()
+        return render_template("prejobgiver.html", cvs=cvs, username=user.username)
+    return redirect(url_for("login"))
+
 
 @app.route('/candidate/delete/<int:cv_id>', methods=['POST'])
 def delete_cv(cv_id):
@@ -309,9 +488,26 @@ def match_candidates():
         results = [(name, min(round(max(score, 0.0) * 100, 2), 100.0), job.domain) for name, score in results if score > 0.3]
         logging.debug(f"Final percentage scores: {[(name, score) for name, score, _ in results]}")
 
-        return render_template('match_results.html', results=results, job_file=job.filename)
+       
+        matched_cvs = []
+        for cv_file, score, domain in results:
+            cv = CandidateCV.query.filter_by(filename=cv_file).first()
+            matched_cvs.append((cv_file, score, domain, int(cv.id) if cv else 0))
+
+        cv_ids = [c[3] for c in matched_cvs if c[3] is not None]
+       
+        shortlist_map = {s.cv_id: True for s in Shortlist.query.filter_by(jobgiver_id=user.id).all()}
+
+        return render_template(
+            'match_results.html',
+            results=matched_cvs,
+            job_file=job.filename,
+            cv_ids=cv_ids,          # <-- pass the IDs to the template
+            shortlist_map=shortlist_map
+        )
 
     return redirect(url_for('login'))
+
 
 @app.route('/match-jobs', methods=['POST'])
 def match_jobs():
@@ -368,15 +564,389 @@ def match_jobs():
         results = [(name, min(round(max(score, 0.0) * 100, 2), 100.0), cv.domain) for name, score in results if score > 0.3]
         logging.debug(f"Final percentage scores: {[(name, score) for name, score, _ in results]}")
 
-        return render_template('job_matches.html', results=results, cv_file=cv.filename)
+        
+        matched_jobs = []
+        for job_file, score, domain in results:
+            job = JobRequirement.query.filter_by(filename=job_file).first()
+            matched_jobs.append((job_file, score, domain, int(job.id) if job else 0))
+
+        job_ids = [j[3] for j in matched_jobs if j[3] is not None]
+       
+        saved_map = {s.job_id: True for s in SavedJob.query.filter_by(candidate_id=user.id).all()}
+
+        return render_template(
+            'job_matches.html',
+            results=matched_jobs,
+            cv_file=cv.filename,
+            job_ids=job_ids,
+            saved_map=saved_map         
+        )
 
     return redirect(url_for('login'))
+
+
+# === INBOX ===
+@app.route('/inbox')
+def inbox():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get messages where user is receiver ONLY (not sender)
+    messages = Message.query.filter(
+        Message.receiver_id == user.id
+    ).order_by(Message.sent_at.desc()).all()
+    
+    # Count unread messages (where user is receiver and message is unread)
+    unread_count = Message.query.filter_by(receiver_id=user.id, is_read=False).count()
+    
+    return render_template('inbox.html', messages=messages, unread_count=unread_count, current_user=user)
+
+@app.route('/inbox-data')
+def inbox_data():
+    if 'username' not in session:
+        return jsonify({'unread': 0, 'messages': []})
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    messages = Message.query.filter(
+        (Message.receiver_id == user.id) | (Message.sender_id == user.id)
+    ).order_by(Message.sent_at.desc()).limit(20).all()
+
+    msg_list = []
+    for m in messages:
+        msg_list.append({
+            'id': m.id,
+            'sender': m.sender.username,
+            'receiver': m.receiver.username,
+            'message': m.message,
+            'message_type': m.message_type,
+            'time': m.sent_at.strftime('%Y-%m-%d %H:%M'),
+            'is_read': m.is_read
+        })
+
+    unread_count = Message.query.filter_by(receiver_id=user.id, is_read=False).count()
+    return jsonify({'unread': unread_count, 'messages': msg_list})
+
+# === MARK MESSAGE AS READ ===
+@app.route('/mark-message-read', methods=['POST'])
+def mark_message_read():
+    if 'username' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    data = request.get_json()
+    message_id = data.get('message_id')
+    
+    try:
+        message_id = int(message_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid Message ID"}), 400
+        
+    user = User.query.filter_by(username=session['username']).first()
+    message = Message.query.filter_by(id=message_id, receiver_id=user.id).first()
+    
+    if not message:
+        return jsonify({"error": "Message not found"}), 404
+        
+    message.is_read = True
+    db.session.commit()
+    
+    return jsonify({"success": "Message marked as read"})
+
+# === APPLY NOW (One-way notification) ===
+@app.route('/apply', methods=['POST'])
+def apply_now():
+    if session.get('role') != 'candidate':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.get_json()
+    job_id = data.get('job_id')
+    
+    # Convert to integer if it's a string
+    try:
+        job_id = int(job_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid Job ID"}), 400
+    
+    user = User.query.filter_by(username=session['username']).first()
+    job = JobRequirement.query.get(job_id)
+
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+
+    if Application.query.filter_by(candidate_id=user.id, job_id=job_id).first():
+        return jsonify({'error': 'Already applied'}), 400
+
+    # Create application record
+    app = Application(candidate_id=user.id, job_id=job_id)
+    db.session.add(app)
+    
+    # Create one-way notification message to job giver
+    application_message = f"{user.username} has applied for your job: {job.filename}"
+    msg = Message(
+        sender_id=user.id, 
+        receiver_id=job.user_id,
+        message=application_message, 
+        file_type='job', 
+        file_id=job_id,
+        message_type='application'
+    )
+    db.session.add(msg)
+    
+    # Commit both application and message
+    db.session.commit()
+
+    # Notify job giver
+    notify(job.user_id, "New Application", f"{user.username} applied to your job", 'application', app.id)
+
+    return jsonify({'success': 'Applied successfully!'})
+
+# === SHORTLIST CV ===
+@app.route('/shortlist-cv', methods=['POST'])
+def shortlist_cv():
+    if session.get('role') != 'jobgiver': 
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.get_json()
+    cv_id = data.get('cv_id')
+    
+    # Convert to integer if it's a string
+    try:
+        cv_id = int(cv_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid CV ID"}), 400
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    if Shortlist.query.filter_by(jobgiver_id=user.id, cv_id=cv_id).first():
+        return jsonify({"error": "Already shortlisted"}), 400
+        
+    db.session.add(Shortlist(jobgiver_id=user.id, cv_id=cv_id))
+    db.session.commit()
+    return jsonify({"success": "Shortlisted!"})
+
+# === REMOVE FROM SHORTLIST ===
+@app.route('/remove-shortlist', methods=['POST'])
+def remove_shortlist():
+    if session.get('role') != 'jobgiver': 
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    data = request.get_json()
+    cv_id = data.get('cv_id')
+    
+    # Convert to integer if it's a string
+    try:
+        cv_id = int(cv_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid CV ID"}), 400
+        
+    user = User.query.filter_by(username=session['username']).first()
+        
+    item = Shortlist.query.filter_by(jobgiver_id=user.id, cv_id=cv_id).first()
+    if not item: 
+        return jsonify({"error": "Not found"}), 404
+        
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({"success": "Removed from shortlist"})
+
+# === SAVE JOB ===
+@app.route('/save-job', methods=['POST'])
+def save_job():
+    if session.get('role') != 'candidate': 
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    data = request.get_json()
+    job_id = data.get('job_id')
+    
+    # Convert to integer if it's a string
+    try:
+        job_id = int(job_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid Job ID"}), 400
+        
+    user = User.query.filter_by(username=session['username']).first()
+        
+    if SavedJob.query.filter_by(candidate_id=user.id, job_id=job_id).first():
+        return jsonify({"error": "Already saved"}), 400
+        
+    db.session.add(SavedJob(candidate_id=user.id, job_id=job_id))
+    db.session.commit()
+    return jsonify({"success": "Saved!"})
+
+# === REMOVE SAVED JOB ===
+@app.route('/remove-saved-job', methods=['POST'])
+def remove_saved_job():
+    if session.get('role') != 'candidate': 
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    data = request.get_json()
+    job_id = data.get('job_id')
+    
+    # Convert to integer if it's a string
+    try:
+        job_id = int(job_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid Job ID"}), 400
+        
+    user = User.query.filter_by(username=session['username']).first()
+        
+    item = SavedJob.query.filter_by(candidate_id=user.id, job_id=job_id).first()
+    if not item: 
+        return jsonify({"error": "Not found"}), 404
+        
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({"success": "Removed from saved"})
+
+# === VIEW SHORTLISTED ===
+@app.route('/shortlisted')
+def shortlisted():
+    if session.get('role') != 'jobgiver': 
+        return redirect(url_for('login'))
+        
+    user = User.query.filter_by(username=session['username']).first()
+    shortlists = Shortlist.query.filter_by(jobgiver_id=user.id).all()
+    
+    items = []
+    for shortlist in shortlists:
+        cv = CandidateCV.query.get(shortlist.cv_id)
+        if cv:
+            cv_user = User.query.get(cv.user_id)
+            items.append((shortlist, cv, cv_user))
+    
+    return render_template('shortlisted.html', items=items)
+
+# === VIEW SAVED JOBS ===
+@app.route('/saved-jobs')
+def saved_jobs():
+    if session.get('role') != 'candidate': 
+        return redirect(url_for('login'))
+        
+    user = User.query.filter_by(username=session['username']).first()
+    saved_jobs = SavedJob.query.filter_by(candidate_id=user.id).all()
+    
+    items = []
+    for saved in saved_jobs:
+        job = JobRequirement.query.get(saved.job_id)
+        if job:
+            job_user = User.query.get(job.user_id)
+            items.append((saved, job, job_user))
+    
+    return render_template('saved_jobs.html', items=items)
+
+# === API: Counts for badge ===
+@app.route('/api/counts')
+def api_counts():
+    if 'username' not in session: 
+        return jsonify({})
+        
+    user = User.query.filter_by(username=session['username']).first()
+    out = {}
+    if session['role'] == 'jobgiver':
+        out['shortlist'] = Shortlist.query.filter_by(jobgiver_id=user.id).count()
+    elif session['role'] == 'candidate':
+        out['saved'] = SavedJob.query.filter_by(candidate_id=user.id).count()
+    return jsonify(out)
+
+# === SEND INVITE (One-way notification) ===
+@app.route('/send-invite', methods=['POST'])
+def send_invite():
+    if session.get('role') != 'jobgiver':
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    data = request.get_json()
+    cv_id = data.get('cv_id')
+
+    # Convert to integer if it's a string
+    try:
+        cv_id = int(cv_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid CV ID"}), 400
+
+    jobgiver = User.query.filter_by(username=session['username']).first()
+    cv = CandidateCV.query.get(cv_id)
+    
+    if not cv:
+        return jsonify({"error": "CV not found"}), 404
+        
+    candidate = cv.user
+
+    # Create one-way notification message to candidate ONLY
+    invite_message = f"{jobgiver.company_name or jobgiver.username} has invited you for a job position."
+    msg = Message(
+        sender_id=jobgiver.id, 
+        receiver_id=candidate.id,  # This should ONLY be the candidate
+        message=invite_message, 
+        file_type='cv', 
+        file_id=cv_id,
+        message_type='invite'
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    # Notify candidate ONLY
+    notify(candidate.id, "Interview Invite", f"{jobgiver.username} invited you", 'invite', msg.id)
+
+    return jsonify({'success': 'Invite sent successfully!'})
+
+# === DEBUG: Check messages in database ===
+@app.route('/debug/messages')
+def debug_messages():
+    if 'username' not in session:
+        return "Not logged in"
+    
+    user = User.query.filter_by(username=session['username']).first()
+    all_messages = Message.query.all()
+    
+    debug_info = []
+    for msg in all_messages:
+        debug_info.append({
+            'id': msg.id,
+            'sender': msg.sender.username if msg.sender else 'None',
+            'receiver': msg.receiver.username if msg.receiver else 'None', 
+            'message': msg.message,
+            'message_type': msg.message_type,
+            'file_type': msg.file_type,
+            'file_id': msg.file_id,
+            'sent_at': msg.sent_at
+        })
+    
+    return jsonify(debug_info)
+
+# === DEBUG: Check applications ===
+@app.route('/debug/applications')
+def debug_applications():
+    if 'username' not in session:
+        return "Not logged in"
+    
+    all_apps = Application.query.all()
+    
+    debug_info = []
+    for app in all_apps:
+        debug_info.append({
+            'id': app.id,
+            'candidate': app.candidate.username if app.candidate else 'None',
+            'job': app.job.filename if app.job else 'None',
+            'job_owner': app.job.user.username if app.job and app.job.user else 'None',
+            'applied_at': app.applied_at
+        })
+    
+    return jsonify(debug_info)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    session.pop('role', None)
+    flash("Logged out successfully!", "success")
+    return redirect(url_for('homepage'))
 
 # =====================
 # RUN FLASK SERVER
 # =====================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='127.0.0.1', port=5000)
 
 from admin import admin_bp
 app.register_blueprint(admin_bp)
