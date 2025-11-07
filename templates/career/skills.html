@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Your Skills</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        .skills-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .add-skill-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .skill-card {
+            border: 1px solid #e9ecef;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background: white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .skill-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .skill-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .proficiency-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .proficiency-beginner { background: #e3f2fd; color: #1976d2; }
+        .proficiency-intermediate { background: #e8f5e8; color: #2e7d32; }
+        .proficiency-advanced { background: #fff3e0; color: #f57c00; }
+        .proficiency-expert { background: #fce4ec; color: #c2185b; }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: space-between;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    
+    {% block content %}
+    <div class="skills-container">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+            <h1 style="margin: 0;">Manage Your Skills</h1>
+            <a href="{{ url_for('candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+                ← Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="add-skill-card">
+            <h3 style="margin-top: 0; color: #333;">➕ Add New Skill</h3>
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Skill Name</label>
+                    <input type="text" name="skill_name" required class="select-input" placeholder="e.g., Python, Project Management, Digital Marketing" style="width: 100%;">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Proficiency Level</label>
+                    <select name="proficiency_level" class="select-input" style="width: 100%;">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Years of Experience</label>
+                    <input type="number" name="years_experience" step="0.5" min="0" class="select-input" placeholder="e.g., 2.5" style="width: 100%;">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem;">
+                    ➕ Add Skill
+                </button>
+            </form>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1.5rem;">Your Skills ({{ skills|length }})</h3>
+            {% if skills %}
+                <div class="skills-list">
+                    {% for skill in skills %}
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div style="flex: 1;">
+                                <strong style="font-size: 1.1rem;">{{ skill.skill_name }}</strong>
+                                <div class="skill-meta" style="margin-top: 0.5rem;">
+                                    <span class="proficiency-badge proficiency-{{ skill.proficiency_level|lower }}">
+                                        {{ skill.proficiency_level }}
+                                    </span>
+                                    <span>📅 {{ skill.years_experience }} years experience</span>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('career.delete_skill', skill_id=skill.id) }}" 
+                               class="btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete {{ skill.skill_name }}?')"
+                               style="padding: 0.5rem 1rem; text-decoration: none;">
+                                🗑️ Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div>🔧</div>
+                    <h3>No skills added yet</h3>
+                    <p>Add your first skill to get started with career recommendations</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ url_for('candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">
+                ← Back to Dashboard
+            </a>
+            <a href="{{ url_for('career.career_predictor') }}" class="btn" style="background: #007bff; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">
+                🚀 Career Predictor →
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

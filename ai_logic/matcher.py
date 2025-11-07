@@ -8,6 +8,7 @@ def match_documents(query_text, documents, document_names, embed_func):
     """
     Compare query_text with a list of documents using embeddings.
     Returns sorted list of (filename, similarity_score) with scores in [0, 1].
+    Uses simple cosine similarity - proven and reliable.
     """
     # Embed the query
     query_embedding = embed_func(query_text)
@@ -48,7 +49,7 @@ def match_documents(query_text, documents, document_names, embed_func):
         logging.warning("No valid document embeddings")
         return []
 
-    # Manual cosine similarity calculation
+    # Manual cosine similarity calculation - Simple and effective
     similarities = []
     for i, doc_embedding in enumerate(doc_embeddings):
         similarity = np.dot(query_embedding, doc_embedding)

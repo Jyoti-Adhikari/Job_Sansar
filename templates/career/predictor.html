@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Path Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        .career-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .domain-selector {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .skills-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+        .career-card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .career-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .match-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .skill-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin: 0.2rem;
+            font-size: 0.85rem;
+        }
+        .matching-skill {
+            background: #d4edda;
+            color: #155724;
+        }
+        .missing-skill {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    
+    {% block content %}
+    <div class="career-container">
+        <div class="header-actions">
+            <div>
+                <h1 style="margin: 0; color: #333;">🚀 Career Path Predictor</h1>
+                <p style="margin: 0.5rem 0 0 0; color: #6c757d;">Get AI-powered career recommendations based on your skills and experience</p>
+            </div>
+            <a href="{{ url_for('candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">
+                ← Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="domain-selector">
+            <h3 style="margin-top: 0; color: white;">Select Domain for Analysis</h3>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">Choose a specific domain or analyze across all domains for comprehensive career recommendations</p>
+            <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <select id="domainSelect" class="select-input" style="width: 100%; padding: 0.8rem;">
+                        <option value="">-- All Domains --</option>
+                        {% for domain in user_domains %}
+                        <option value="{{ domain }}">{{ domain }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button onclick="analyzeCareer()" class="btn-primary" style="padding: 0.8rem 2rem; background: white; color: #667eea; border: none; font-weight: 600;">
+                    🔍 Analyze My Career Path
+                </button>
+            </div>
+        </div>
+
+        <div class="skills-section">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0;">Your Current Skills</h3>
+                <span class="badge" style="background: #007bff; color: white; padding: 0.3rem 0.8rem; border-radius: 20px;">
+                    {{ user_skills|length }} skills
+                </span>
+            </div>
+            
+            {% if user_skills %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    {% for skill in user_skills %}
+                    <div class="skill-tag">
+                        {{ skill.skill_name }} 
+                        <small>({{ skill.proficiency_level }} - {{ skill.years_experience }}yrs)</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0 0 1rem 0; color: #6c757d;">No skills added yet</p>
+                </div>
+            {% endif %}
+            
+            <a href="{{ url_for('career.manage_skills') }}" class="btn" style="background: #28a745; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                ⚙️ Manage Skills
+            </a>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <h3>Analyzing Your Career Path</h3>
+            <p>We're evaluating your skills and experience to find the best career matches...</p>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">🎯 Career Recommendations</h2>
+                <button onclick="window.location.reload()" class="btn" style="background: #6c757d; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 6px;">
+                    🔄 New Analysis
+                </button>
+            </div>
+            
+            <div id="resultsStats" class="stats-grid" style="display: none;">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+            
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function analyzeCareer() {
+            const domain = document.getElementById('domainSelect').value;
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            if (!domain) {
+                if (!confirm('You haven\'t selected a specific domain. This will analyze across ALL domains. Continue?')) {
+                    return;
+                }
+            }
+            
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            fetch('/career/career-predictor/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ domain: domain })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                alert('Error analyzing career path: ' + error);
+            });
+        }
+
+        function displayResults(data) {
+            const container = document.getElementById('resultsContainer');
+            const resultsSection = document.getElementById('resultsSection');
+            const statsContainer = document.getElementById('resultsStats');
+            
+            // Update stats
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div style="font-size: 2rem; color: #007bff;">📊</div>
+                    <h3 style="margin: 0.5rem 0;">${data.skills_found}</h3>
+                    <p style="margin: 0; color: #6c757d;">Skills Found</p>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 2rem; color: #28a745;">🎯</div>
+                    <h3 style="margin: 0.5rem 0;">${data.recommendations?.length || 0}</h3>
+                    <p style="margin: 0; color: #6c757d;">Career Paths</p>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 2rem; color: #ffc107;">⏱️</div>
+                    <h3 style="margin: 0.5rem 0;">${data.user_experience}</h3>
+                    <p style="margin: 0; color: #6c757d;">Years Experience</p>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 2rem; color: #6f42c1;">🎯</div>
+                    <h3 style="margin: 0.5rem 0;">${data.selected_domain || 'All Domains'}</h3>
+                    <p style="margin: 0; color: #6c757d;">Domain</p>
+                </div>
+            `;
+            statsContainer.style.display = 'grid';
+            
+            if (!data.recommendations || data.recommendations.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 12px;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                        <h3>No career recommendations found</h3>
+                        <p>Try adding more skills or selecting a different domain</p>
+                        <a href="{{ url_for('career.manage_skills') }}" class="btn" style="background: #007bff; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px; margin-top: 1rem; display: inline-block;">
+                            ➕ Add More Skills
+                        </a>
+                    </div>
+                `;
+            } else {
+                let html = '<div class="recommendations">';
+                
+                data.recommendations.forEach(rec => {
+                    html += `
+                        <div class="career-card">
+                            <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 0.5rem 0; color: #333;">${rec.career_path.title}</h3>
+                                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                        <div class="match-score" style="color: ${getMatchColor(rec.match_score)};">
+                                            ${rec.match_score}% Match
+                                        </div>
+                                        <span class="proficiency-badge" style="background: ${getSuitabilityColor(rec.suitability)}; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                                            ${rec.suitability}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #666; line-height: 1.6;">${rec.career_path.description}</p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+                                <div>
+                                    <strong>💼 Experience Level</strong>
+                                    <p style="margin: 0.5rem 0 0 0;">${rec.career_path.experience_level}</p>
+                                </div>
+                                <div>
+                                    <strong>💰 Salary Range</strong>
+                                    <p style="margin: 0.5rem 0 0 0;">$${rec.career_path.average_salary_min} - $${rec.career_path.average_salary_max}</p>
+                                </div>
+                                <div>
+                                    <strong>📈 Growth Outlook</strong>
+                                    <p style="margin: 0.5rem 0 0 0;">${rec.career_path.growth_outlook}</p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 1.5rem;">
+                                <strong>✅ Your Matching Skills:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    ${rec.matching_skills.map(skill => `<span class="skill-tag matching-skill">${skill}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            ${rec.missing_skills.length > 0 ? `
+                            <div style="margin-top: 1.5rem;">
+                                <strong>🎯 Skills to Develop:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    ${rec.missing_skills.map(skill => `<span class="skill-tag missing-skill">${skill}</span>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+            }
+            
+            resultsSection.style.display = 'block';
+            // Smooth scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getMatchColor(score) {
+            if (score >= 80) return '#28a745';
+            if (score >= 60) return '#17a2b8';
+            if (score >= 40) return '#ffc107';
+            return '#dc3545';
+        }
+
+        function getSuitabilityColor(suitability) {
+            switch(suitability) {
+                case 'Excellent Fit': return '#28a745';
+                case 'Good Fit': return '#17a2b8';
+                case 'Moderate Fit': return '#ffc107';
+                case 'Basic Fit': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>

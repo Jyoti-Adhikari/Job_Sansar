@@ -111,7 +111,6 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
 
-
 class Shortlist(db.Model):
     __tablename__ = 'shortlists'
     id = db.Column(db.Integer, primary_key=True)
@@ -125,6 +124,28 @@ class SavedJob(db.Model):
     candidate_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     job_id = db.Column(db.Integer, db.ForeignKey('job_requirements.id'), nullable=False)
     saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class CareerPath(db.Model):
+    __tablename__ = 'career_paths'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    required_skills = db.Column(db.JSON)
+    average_salary_min = db.Column(db.Integer)
+    average_salary_max = db.Column(db.Integer)
+    growth_outlook = db.Column(db.String(50))
+    experience_level = db.Column(db.String(50))
+    domain = db.Column(db.String(100))
+
+class UserSkills(db.Model):
+    __tablename__ = 'user_skills'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    skill_name = db.Column(db.String(100), nullable=False)
+    proficiency_level = db.Column(db.String(50))
+    years_experience = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='skills')
 
 # =====================
 # HELPER FUNCTIONS 
@@ -207,16 +228,20 @@ def utility_processor():
 # =====================
 @app.route('/')
 def homepage():
-    # Log out the user by clearing session
-    session.pop('username', None)
-    session.pop('role', None)
+    # Check if user is logged in and redirect to appropriate dashboard
+    if 'username' in session and 'role' in session:
+        if session['role'] == 'candidate':
+            return redirect(url_for('precandidate'))
+        elif session['role'] == 'jobgiver':
+            return redirect(url_for('prejobgiver'))
+        elif session['role'] == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
+    
+    # If not logged in, show public homepage
     return render_template('homepage.html')
 
 @app.route('/about')
 def about():
-    # Log out the user by clearing session
-    session.pop('username', None)
-    session.pop('role', None)
     return render_template('about.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -261,7 +286,6 @@ def contact():
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html')
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -324,7 +348,6 @@ def precandidate():
     # Show the page
     return render_template('precandidate.html', jobs=jobs)
 
-
 @app.route('/candidate', methods=['GET', 'POST'])
 def candidate():
     if 'role' in session and session['role'] == 'candidate':
@@ -363,7 +386,6 @@ def candidate():
 
     return redirect(url_for('login'))
 
-
 @app.route('/jobgiver', methods=['GET', 'POST'])
 def jobgiver():
     if 'role' in session and session['role'] == 'jobgiver':
@@ -383,7 +405,6 @@ def jobgiver():
         return render_template('jobgiver.html', job_files=job_files, username=user.username)
     return redirect(url_for('login'))
 
-
 @app.route('/prejobgiver')
 def prejobgiver():
     if 'role' in session and session['role'] == 'jobgiver':
@@ -391,7 +412,6 @@ def prejobgiver():
         user = User.query.filter_by(username=session['username']).first()
         return render_template("prejobgiver.html", cvs=cvs, username=user.username)
     return redirect(url_for("login"))
-
 
 @app.route('/candidate/delete/<int:cv_id>', methods=['POST'])
 def delete_cv(cv_id):
@@ -454,7 +474,7 @@ def match_candidates():
 
         try:
             raw_text = read_pdf_text(job_path)
-            job_text = extract_job_text(raw_text)
+            job_text = extract_job_text(raw_text)  # Uses enhanced extraction
             logging.debug(f"Extracted job text: {job_text[:200]}...")
             if not job_text.strip():
                 flash("No relevant text extracted from job.", "error")
@@ -470,7 +490,7 @@ def match_candidates():
             if os.path.exists(path):
                 try:
                     raw_text = read_pdf_text(path)
-                    cv_text = extract_cv_text(raw_text)
+                    cv_text = extract_cv_text(raw_text)  # Uses enhanced extraction
                     logging.debug(f"Extracted CV text ({cv.filename}): {cv_text[:200]}...")
                     if cv_text.strip():
                         cv_texts.append(cv_text)
@@ -482,13 +502,14 @@ def match_candidates():
             flash("No CVs available for this domain.", "error")
             return redirect(url_for('jobgiver'))
 
+        # Use simple cosine similarity matching (proven approach)
         results = match_documents(job_text, cv_texts, cv_names, get_embedding)
         logging.debug(f"Raw similarity scores before scaling: {[(name, score) for name, score in results]}")
+        
         # Validate and scale scores
         results = [(name, min(round(max(score, 0.0) * 100, 2), 100.0), job.domain) for name, score in results if score > 0.3]
         logging.debug(f"Final percentage scores: {[(name, score) for name, score, _ in results]}")
 
-       
         matched_cvs = []
         for cv_file, score, domain in results:
             cv = CandidateCV.query.filter_by(filename=cv_file).first()
@@ -502,12 +523,11 @@ def match_candidates():
             'match_results.html',
             results=matched_cvs,
             job_file=job.filename,
-            cv_ids=cv_ids,          # <-- pass the IDs to the template
+            cv_ids=cv_ids,
             shortlist_map=shortlist_map
         )
 
     return redirect(url_for('login'))
-
 
 @app.route('/match-jobs', methods=['POST'])
 def match_jobs():
@@ -530,7 +550,7 @@ def match_jobs():
 
         try:
             raw_text = read_pdf_text(cv_path)
-            cv_text = extract_cv_text(raw_text)
+            cv_text = extract_cv_text(raw_text)  # Uses enhanced extraction
             logging.debug(f"Extracted CV text: {cv_text[:200]}...")
             if not cv_text.strip():
                 flash("No relevant text extracted from CV.", "error")
@@ -546,7 +566,7 @@ def match_jobs():
             if os.path.exists(path):
                 try:
                     raw_text = read_pdf_text(path)
-                    job_text = extract_job_text(raw_text)
+                    job_text = extract_job_text(raw_text)  # Uses enhanced extraction
                     logging.debug(f"Extracted job text ({job.filename}): {job_text[:200]}...")
                     if job_text.strip():
                         job_texts.append(job_text)
@@ -558,13 +578,14 @@ def match_jobs():
             flash("No jobs available for this domain.", "error")
             return redirect(url_for('candidate'))
 
+        # Use simple cosine similarity matching (proven approach)
         results = match_documents(cv_text, job_texts, job_files, get_embedding)
         logging.debug(f"Raw similarity scores before scaling: {[(name, score) for name, score in results]}")
+        
         # Validate and scale scores
         results = [(name, min(round(max(score, 0.0) * 100, 2), 100.0), cv.domain) for name, score in results if score > 0.3]
         logging.debug(f"Final percentage scores: {[(name, score) for name, score, _ in results]}")
 
-        
         matched_jobs = []
         for job_file, score, domain in results:
             job = JobRequirement.query.filter_by(filename=job_file).first()
@@ -583,7 +604,6 @@ def match_jobs():
         )
 
     return redirect(url_for('login'))
-
 
 # === INBOX ===
 @app.route('/inbox')
@@ -943,10 +963,20 @@ def logout():
     return redirect(url_for('homepage'))
 
 # =====================
+# CAREER ROUTES BLUEPRINT
+# =====================
+# Import and register career routes at the END to avoid circular imports
+from career_routes import career_bp
+app.register_blueprint(career_bp)
+
+# =====================
+# ADMIN ROUTES
+# =====================
+from admin import admin_bp
+app.register_blueprint(admin_bp)
+
+# =====================
 # RUN FLASK SERVER
 # =====================
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)
-
-from admin import admin_bp
-app.register_blueprint(admin_bp)

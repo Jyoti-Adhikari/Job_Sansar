@@ -274,3 +274,82 @@ ADD COLUMN IF NOT EXISTS related_cv_id INT NULL;
 ALTER TABLE messages 
 ADD FOREIGN KEY (related_job_id) REFERENCES job_requirements(id),
 ADD FOREIGN KEY (related_cv_id) REFERENCES candidate_cvs(id);
+
+
+
+-- Career Prediction Tables
+CREATE TABLE IF NOT EXISTS career_paths (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    required_skills JSON,
+    average_salary_min INT,
+    average_salary_max INT,
+    growth_outlook ENUM('High', 'Medium', 'Low'),
+    experience_level ENUM('Entry', 'Mid', 'Senior'),
+    domain VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS user_skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    skill_name VARCHAR(100) NOT NULL,
+    proficiency_level ENUM('Beginner', 'Intermediate', 'Expert'),
+    years_experience FLOAT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Sample Career Path Data for Your Domains - ALL SIMPLIFIED
+INSERT INTO career_paths (title, description, required_skills, average_salary_min, average_salary_max, growth_outlook, experience_level, domain) VALUES
+-- Engineering Domain
+('Software Engineer', 'Design, develop and maintain software systems and applications', '["Programming", "Algorithms", "System Design", "Problem Solving", "Software Development"]', 70000, 130000, 'High', 'Mid', 'Engineering'),
+('Mechanical Engineer', 'Design and analyze mechanical systems and components', '["CAD", "Engineering Design", "Thermodynamics", "Manufacturing", "Project Management"]', 65000, 110000, 'Medium', 'Mid', 'Engineering'),
+('Civil Engineer', 'Plan, design and oversee construction projects', '["Structural Analysis", "CAD", "Project Management", "Construction Methods", "Regulatory Compliance"]', 60000, 100000, 'Medium', 'Mid', 'Engineering'),
+('Electrical Engineer', 'Design and develop electrical systems and equipment', '["Circuit Design", "Electronics", "Power Systems", "MATLAB", "Technical Documentation"]', 68000, 115000, 'High', 'Mid', 'Engineering'),
+
+-- Information Technology Domain
+('Full Stack Developer', 'Develop both front-end and back-end web applications', '["JavaScript", "HTML/CSS", "Python", "SQL", "React"]', 60000, 120000, 'High', 'Mid', 'Information Technology'),
+('Data Scientist', 'Extract insights from data using statistical and machine learning techniques', '["Python", "Statistics", "Machine Learning", "SQL", "Data Visualization"]', 80000, 140000, 'High', 'Mid', 'Information Technology'),
+('DevOps Engineer', 'Bridge development and operations with automation and infrastructure management', '["Linux", "Docker", "AWS", "Python", "CI/CD"]', 70000, 130000, 'High', 'Mid', 'Information Technology'),
+('IT Support Specialist', 'Provide technical assistance and support for computer systems', '["Troubleshooting", "Networking", "Hardware", "Customer Service", "Operating Systems"]', 45000, 75000, 'Medium', 'Entry', 'Information Technology'),
+
+-- Healthcare Domain
+('Registered Nurse', 'Provide patient care and support in healthcare settings', '["Patient Care", "Medical Knowledge", "Communication", "Emergency Response", "Medical Documentation"]', 55000, 85000, 'High', 'Mid', 'Healthcare'),
+('Medical Researcher', 'Conduct research to improve healthcare outcomes', '["Research Methodology", "Data Analysis", "Scientific Writing", "Laboratory Techniques", "Statistics"]', 60000, 100000, 'High', 'Mid', 'Healthcare'),
+('Healthcare Administrator', 'Manage healthcare facilities and services', '["Healthcare Management", "Budgeting", "Regulatory Compliance", "Leadership", "Strategic Planning"]', 65000, 110000, 'High', 'Mid', 'Healthcare'),
+
+-- Education Domain
+('Teacher', 'Educate students in specific subject areas', '["Teaching", "Curriculum Development", "Classroom Management", "Communication", "Student Assessment"]', 40000, 70000, 'Medium', 'Entry', 'Education'),
+('Education Administrator', 'Manage educational institutions and programs', '["Educational Leadership", "Budget Management", "Policy Development", "Staff Management", "Strategic Planning"]', 60000, 95000, 'Medium', 'Mid', 'Education'),
+('Curriculum Developer', 'Design and develop educational materials and programs', '["Curriculum Design", "Educational Technology", "Assessment Design", "Research", "Instructional Design"]', 50000, 85000, 'Medium', 'Mid', 'Education'),
+
+-- Finance Domain
+('Financial Analyst', 'Analyze financial data and provide investment recommendations', '["Financial Modeling", "Excel", "Data Analysis", "Accounting", "Risk Assessment"]', 60000, 100000, 'High', 'Mid', 'Finance'),
+('Accountant', 'Manage financial records and ensure compliance', '["Accounting Principles", "Financial Reporting", "Tax Preparation", "Auditing", "Attention to Detail"]', 50000, 85000, 'Medium', 'Entry', 'Finance'),
+('Investment Banker', 'Advise clients on financial transactions and investments', '["Financial Analysis", "Deal Structuring", "Negotiation", "Market Research", "Client Management"]', 80000, 200000, 'High', 'Senior', 'Finance'),
+
+-- Marketing Domain
+('Digital Marketing Specialist', 'Develop and implement online marketing strategies', '["SEO", "Social Media Marketing", "Content Creation", "Analytics", "Campaign Management"]', 45000, 80000, 'High', 'Entry', 'Marketing'),
+('Marketing Manager', 'Oversee marketing campaigns and strategies', '["Strategic Planning", "Brand Management", "Market Research", "Budget Management", "Team Leadership"]', 65000, 120000, 'High', 'Mid', 'Marketing'),
+('Content Strategist', 'Develop content plans to engage target audiences', '["Content Creation", "SEO", "Audience Analysis", "Editorial Planning", "Social Media"]', 50000, 90000, 'High', 'Mid', 'Marketing'),
+
+-- Design Domain
+('UX/UI Designer', 'Design user experiences and interfaces for digital products', '["User Research", "Wireframing", "Prototyping", "Figma", "UI Design"]', 60000, 110000, 'High', 'Mid', 'Design'),
+('Graphic Designer', 'Create visual concepts to communicate ideas', '["Adobe Creative Suite", "Typography", "Layout Design", "Brand Identity", "Creativity"]', 40000, 75000, 'Medium', 'Entry', 'Design'),
+('Product Designer', 'Design physical or digital products for user needs', '["Design Thinking", "Prototyping", "User Testing", "3D Modeling", "Market Research"]', 65000, 115000, 'High', 'Mid', 'Design'),
+
+-- Sales Domain
+('Sales Representative', 'Sell products and services to customers', '["Negotiation", "Communication", "Customer Relationship", "Product Knowledge", "Persistence"]', 40000, 90000, 'Medium', 'Entry', 'Sales'),
+('Sales Manager', 'Lead sales team and develop sales strategies', '["Team Leadership", "Sales Strategy", "Performance Analysis", "Client Management", "Training"]', 70000, 130000, 'High', 'Mid', 'Sales'),
+('Account Executive', 'Manage key client accounts and relationships', '["Account Management", "Strategic Planning", "Revenue Growth", "Presentation", "Contract Negotiation"]', 60000, 120000, 'High', 'Mid', 'Sales'),
+
+-- Legal Domain
+('Corporate Lawyer', 'Provide legal advice for business transactions', '["Legal Research", "Contract Law", "Negotiation", "Corporate Law", "Analytical Thinking"]', 80000, 180000, 'High', 'Senior', 'Legal'),
+('Paralegal', 'Assist lawyers with legal research and documentation', '["Legal Research", "Document Preparation", "Case Management", "Attention to Detail", "Communication"]', 40000, 65000, 'Medium', 'Entry', 'Legal'),
+('Compliance Officer', 'Ensure organizational compliance with laws and regulations', '["Regulatory Knowledge", "Risk Assessment", "Policy Development", "Auditing", "Ethical Standards"]', 60000, 110000, 'High', 'Mid', 'Legal'),
+
+-- Operations / Management Domain
+('Operations Manager', 'Oversee daily business operations and efficiency', '["Process Improvement", "Team Management", "Budgeting", "Strategic Planning", "Supply Chain"]', 65000, 120000, 'High', 'Mid', 'Operations / Management'),
+('Project Manager', 'Plan and execute projects to achieve business goals', '["Project Planning", "Risk Management", "Stakeholder Management", "Agile Methodology", "Leadership"]', 70000, 130000, 'High', 'Mid', 'Operations / Management'),
+('Business Analyst', 'Analyze business processes and recommend improvements', '["Requirements Gathering", "Data Analysis", "Process Mapping", "Stakeholder Communication", "Problem Solving"]', 60000, 105000, 'High', 'Mid', 'Operations / Management');

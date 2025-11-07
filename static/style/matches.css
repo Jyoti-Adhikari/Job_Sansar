@@ -245,7 +245,7 @@
 .score-text {
     position: relative;
     z-index: 1;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 900;
     color: #f58220;
     text-shadow: 0 2px 4px rgba(245, 130, 32, 0.2);

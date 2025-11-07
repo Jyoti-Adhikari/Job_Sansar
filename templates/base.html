@@ -27,6 +27,9 @@
                 
                 <!-- Only show Notification and Contact when user is logged in -->
                 {% if 'username' in session %}
+                    {% if session['role'] == 'candidate' %}
+                        <a href="{{ url_for('career.career_predictor') }}">Career Predictor</a>
+                    {% endif %}
                     <a href="{{ url_for('inbox') }}">Notification</a>
                     <a href="{{ url_for('contact') }}">Contact</a>
                     <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
