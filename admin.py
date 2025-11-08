@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
-from app import db, User, Feedback, CandidateCV, JobRequirement
+from app import db, User, Feedback, CandidateCV, JobRequirement, UserSkills, Shortlist, SavedJob, Application, Message, Notification
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates')
 
@@ -42,20 +42,48 @@ def delete_user(user_id):
     
     user = User.query.get_or_404(user_id)
     
-    # Prevent admin from deleting themselves
-    if user.id == session.get('user_id'):
+    # PREVENT ADMIN FROM DELETING THEMSELVES - FIXED
+    current_user_id = session.get('user_id')
+    if user.id == current_user_id:
         flash("You cannot delete your own account!", "error")
         return redirect(url_for('admin.admin_dashboard'))
     
-    # Delete associated data first
-    CandidateCV.query.filter_by(user_id=user_id).delete()
-    JobRequirement.query.filter_by(user_id=user_id).delete()
-    Feedback.query.filter_by(user_id=user_id).delete()
+    # ADDITIONAL PROTECTION: Prevent deletion of main admin account (jyoti)
+    if user.username == 'jyoti' and user.role == 'admin':
+        flash("The primary admin account cannot be deleted for system security.", "error")
+        return redirect(url_for('admin.admin_dashboard'))
     
-    # Delete the user
-    db.session.delete(user)
-    db.session.commit()
-    flash(f"User '{user.username}' deleted successfully!", "success")
+    # Delete all associated data to maintain referential integrity
+    try:
+        # Delete user skills
+        UserSkills.query.filter_by(user_id=user_id).delete()
+        
+        # Delete candidate-related data
+        CandidateCV.query.filter_by(user_id=user_id).delete()
+        SavedJob.query.filter_by(candidate_id=user_id).delete()
+        Application.query.filter_by(candidate_id=user_id).delete()
+        
+        # Delete jobgiver-related data  
+        JobRequirement.query.filter_by(user_id=user_id).delete()
+        Shortlist.query.filter_by(jobgiver_id=user_id).delete()
+        
+        # Delete messages and notifications
+        Message.query.filter_by(sender_id=user_id).delete()
+        Message.query.filter_by(receiver_id=user_id).delete()
+        Notification.query.filter_by(user_id=user_id).delete()
+        
+        # Delete feedback
+        Feedback.query.filter_by(user_id=user_id).delete()
+        
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        flash(f"User '{user.username}' deleted successfully!", "success")
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting user: {str(e)}", "error")
+    
     return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/admin/cv/delete/<int:cv_id>', methods=['POST'])
@@ -65,6 +93,10 @@ def delete_cv(cv_id):
         return redirect(url_for('login'))
     
     cv = CandidateCV.query.get_or_404(cv_id)
+    
+    # Also delete related shortlists
+    Shortlist.query.filter_by(cv_id=cv_id).delete()
+    
     db.session.delete(cv)
     db.session.commit()
     flash("Candidate CV deleted successfully!", "success")
@@ -77,6 +109,11 @@ def delete_job(job_id):
         return redirect(url_for('login'))
     
     job = JobRequirement.query.get_or_404(job_id)
+    
+    # Also delete related applications and saved jobs
+    Application.query.filter_by(job_id=job_id).delete()
+    SavedJob.query.filter_by(job_id=job_id).delete()
+    
     db.session.delete(job)
     db.session.commit()
     flash("Job requirement deleted successfully!", "success")

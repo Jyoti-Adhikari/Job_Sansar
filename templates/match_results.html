@@ -32,7 +32,11 @@
                     {% else %}
                         <button class="btn-shortlist" onclick="shortlistCV('{{ cv_id }}', this)">Shortlist CV</button>
                     {% endif %}
-                    <button class="btn-invite" onclick="sendInvite('{{ cv_id }}', this)">Invite</button>
+                    {% if invite_map.get(cv_id) %}
+                        <button class="btn-invite" disabled style="background:#28a745;">Invited</button>
+                    {% else %}
+                        <button class="btn-invite" onclick="sendInvite('{{ cv_id }}', this)">Invite</button>
+                    {% endif %}
                 {% else %}
                     <button class="btn-shortlist" disabled>Shortlist CV</button>
                     <button class="btn-invite" disabled>Invite</button>

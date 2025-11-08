@@ -254,6 +254,7 @@ def login():
         if user:
             session['username'] = user.username
             session['role'] = user.role
+            session['user_id'] = user.id 
             next_url = request.form.get('next') or ('/precandidate' if role == 'candidate' else '/prejobgiver' if role == 'jobgiver' else '/admin')
             return redirect(next_url)
         else:
@@ -519,12 +520,15 @@ def match_candidates():
        
         shortlist_map = {s.cv_id: True for s in Shortlist.query.filter_by(jobgiver_id=user.id).all()}
 
+        invite_map = {m.file_id: True for m in Message.query.filter_by(sender_id=user.id, message_type='invite').all()}
+
         return render_template(
             'match_results.html',
             results=matched_cvs,
             job_file=job.filename,
             cv_ids=cv_ids,
-            shortlist_map=shortlist_map
+            shortlist_map=shortlist_map,
+            invite_map=invite_map
         )
 
     return redirect(url_for('login'))
@@ -892,6 +896,12 @@ def send_invite():
         return jsonify({"error": "CV not found"}), 404
         
     candidate = cv.user
+
+    existing_invite = Message.query.filter_by(
+        sender_id=jobgiver.id, receiver_id=candidate.id, message_type='invite', file_id=cv_id
+    ).first()
+    if existing_invite:
+        return jsonify({"error": "Invite already sent to this candidate"}), 400
 
     # Create one-way notification message to candidate ONLY
     invite_message = f"{jobgiver.company_name or jobgiver.username} has invited you for a job position."
