@@ -44,10 +44,15 @@
             <div class="media-grid dash-grid">
                 {% for job in job_files %}
                 <article class="media-card job-card">
-                    <div class="media-wrapper">
-                        <iframe src="{{ url_for('uploaded_job', filename=job.filename) }}"
-                                class="pdf-preview" loading="lazy"></iframe>
-                    </div>
+                    <<div class="media-wrapper">
+                        <a href="{{ url_for('uploaded_job', filename=job.filename) }}" target="_blank" class="pdf-link">
+                            <iframe src="{{ url_for('uploaded_job', filename=job.filename) }}"
+                                 class="pdf-preview" loading="lazy"></iframe>
+                            <div class="pdf-overlay">
+                                <span class="pdf-click-text">Click to open PDF<br>in new tab</span>
+                                </div>
+                                </a>
+                        </div>
                     <div class="media-meta">
                         <h3 class="media-title">{{ job.filename }}</h3>
                         <p class="domain-badge">{{ job.domain }}</p>

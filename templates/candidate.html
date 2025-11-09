@@ -44,8 +44,13 @@
                 {% for cv in cvs %}
                 <article class="media-card cv-card">
                     <div class="media-wrapper">
-                        <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}"
-                                class="pdf-preview" loading="lazy"></iframe>
+                        <a href="{{ url_for('uploaded_cv', filename=cv.filename) }}" target="_blank" class="pdf-link">
+                            <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}"
+                                    class="pdf-preview" loading="lazy"></iframe>
+                            <div class="pdf-overlay">
+                                <span class="pdf-click-text">Click to open PDF<br>in new tab</span>
+                         </div>
+                     </a>
                     </div>
                     <div class="media-meta">
                         <h3 class="media-title">{{ cv.filename }}</h3>
