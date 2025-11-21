@@ -86,7 +86,8 @@
     <div class="skills-container">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
             <h1 style="margin: 0;">Manage Your Skills</h1>
-            <a href="{{ url_for('candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+           
+            <a href="{{ url_for('candidate.candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
                 ← Back to Dashboard
             </a>
         </div>
@@ -156,7 +157,8 @@
         </div>
 
         <div class="action-buttons">
-            <a href="{{ url_for('candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">
+            
+            <a href="{{ url_for('candidate.candidate') }}" class="btn" style="background: #6c757d; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">
                 ← Back to Dashboard
             </a>
             <a href="{{ url_for('career.career_predictor') }}" class="btn" style="background: #007bff; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 6px;">

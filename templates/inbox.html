@@ -1,158 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Notifications{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='style/inbox.css') }}">{% endblock %}
 
-{% block extra_css %}
-<style>
-.notifications-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.notifications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.notification-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.notification-card.unread {
-    border-left: 4px solid #007bff;
-    background: #f8f9fa;
-}
-
-.notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.notification-sender {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.avatar {
-    font-size: 1.5em;
-}
-
-.notification-type {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-
-.notification-type.application {
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-.notification-type.invite {
-    background: #e8f5e8;
-    color: #2e7d32;
-}
-
-.file-preview {
-    background: #f5f5f5;
-    padding: 15px;
-    border-radius: 4px;
-    margin: 15px 0;
-}
-
-.file-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.file-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.file-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.file-link:hover {
-    text-decoration: underline;
-}
-
-.notification-body {
-    margin: 15px 0;
-    line-height: 1.5;
-    font-size: 1.1em;
-}
-
-.notification-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    color: #666;
-}
-
-.badge {
-    background: #dc3545;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-}
-
-.empty {
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    margin: 40px 0;
-}
-
-.back-link {
-    display: inline-block;
-    margin-top: 20px;
-    color: #007bff;
-    text-decoration: none;
-    padding: 10px 20px;
-    border: 1px solid #007bff;
-    border-radius: 4px;
-}
-
-.back-link:hover {
-    background: #007bff;
-    color: white;
-    text-decoration: none;
-}
-
-.status-info {
-    font-style: italic;
-    color: #6c757d;
-    font-size: 0.9em;
-}
-
-.file-error {
-    color: #dc3545;
-    font-style: italic;
-    font-size: 0.9em;
-}
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="notifications-container">
@@ -184,7 +33,7 @@
                         <strong>Candidate CV</strong>
                         {% if msg.sender.cvs %}
                             {% set cv = msg.sender.cvs[0] %}
-                            <a href="{{ url_for('uploaded_cv', filename=cv.filename) }}" target="_blank" class="file-link">
+                            <a href="{{ url_for('main.uploaded_cv', filename=cv.filename) }}" target="_blank" class="file-link">
                                 View CV: {{ cv.filename }}
                             </a>
                         {% else %}
@@ -223,7 +72,7 @@
                         <strong>Job Requirements</strong>
                         {% if msg.sender.job_requirements %}
                             {% set job = msg.sender.job_requirements[0] %}
-                            <a href="{{ url_for('uploaded_job', filename=job.filename) }}" target="_blank" class="file-link">
+                            <a href="{{ url_for('main.uploaded_job', filename=job.filename) }}" target="_blank" class="file-link">
                                 View Job: {{ job.filename }}
                             </a>
                         {% else %}
@@ -305,7 +154,7 @@
                     <span class="file-icon">📄</span>
                     <div class="file-info">
                         <strong>CV File</strong>
-                        <a href="{{ url_for('uploaded_cv', filename=get_cv_filename(msg.file_id)) }}" target="_blank" class="file-link">
+                        <a href="{{ url_for('main.uploaded_cv', filename=get_cv_filename(msg.file_id)) }}" target="_blank" class="file-link">
                             View CV: {{ get_cv_filename(msg.file_id) }}
                         </a>
                     </div>
@@ -317,7 +166,7 @@
                     <span class="file-icon">📋</span>
                     <div class="file-info">
                         <strong>Job File</strong>
-                        <a href="{{ url_for('uploaded_job', filename=get_job_filename(msg.file_id)) }}" target="_blank" class="file-link">
+                        <a href="{{ url_for('main.uploaded_job', filename=get_job_filename(msg.file_id)) }}" target="_blank" class="file-link">
                             View Job: {{ get_job_filename(msg.file_id) }}
                         </a>
                     </div>
@@ -341,9 +190,9 @@
 
     <!-- BACK BUTTON -->
     {% if current_user.role == 'jobgiver' %}
-        <a href="{{ url_for('jobgiver') }}" class="back-link">← Back to Job Giver Dashboard</a>
+        <a href="{{ url_for('jobgiver.jobgiver') }}" class="back-link">← Back to Job Giver Dashboard</a>
     {% elif current_user.role == 'candidate' %}
-        <a href="{{ url_for('candidate') }}" class="back-link">← Back to Candidate Dashboard</a>
+        <a href="{{ url_for('candidate.candidate') }}" class="back-link">← Back to Candidate Dashboard</a>
     {% endif %}
 </div>
 

@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, session, jsonify
+from app import db
+from app.models import User, UserSkills, CareerPath
 import os
 import logging
 import json
@@ -96,9 +98,8 @@ class CareerPathPredictor:
 def career_predictor():
     if 'username' not in session:
         flash('Please login to use career predictor', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  # Changed from 'login' to 'auth.login'
     
-    from app import User, UserSkills, CareerPath, db
     user = User.query.filter_by(username=session['username']).first()
     user_skills = UserSkills.query.filter_by(user_id=user.id).all()
     
@@ -115,7 +116,6 @@ def analyze_career():
     if 'username' not in session:
         return jsonify({'error': 'Please login first'}), 401
     
-    from app import User, UserSkills, CareerPath, db
     user = User.query.filter_by(username=session['username']).first()
     data = request.get_json()
     selected_domain = data.get('domain')
@@ -178,9 +178,8 @@ def analyze_career():
 @career_bp.route('/career-predictor/skills', methods=['GET', 'POST'])
 def manage_skills():
     if 'username' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  # Changed from 'login' to 'auth.login'
     
-    from app import User, UserSkills, db
     user = User.query.filter_by(username=session['username']).first()
     
     if request.method == 'POST':
@@ -217,9 +216,8 @@ def manage_skills():
 @career_bp.route('/career-predictor/skills/delete/<int:skill_id>')
 def delete_skill(skill_id):
     if 'username' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  # Changed from 'login' to 'auth.login'
     
-    from app import User, UserSkills, db
     user = User.query.filter_by(username=session['username']).first()
     skill = UserSkills.query.get_or_404(skill_id)
     
@@ -237,7 +235,6 @@ def get_domains():
     if 'username' not in session:
         return jsonify({'error': 'Please login first'}), 401
         
-    from app import CareerPath, db
     domains = db.session.query(CareerPath.domain).distinct().all()
     domain_list = [domain[0] for domain in domains]
     return jsonify({'domains': domain_list})
@@ -247,7 +244,6 @@ def clear_all_skills():
     if 'username' not in session:
         return jsonify({'error': 'Please login first'}), 401
     
-    from app import User, UserSkills, db
     user = User.query.filter_by(username=session['username']).first()
     
     try:

@@ -10,7 +10,7 @@
         {% for shortlist, cv, user in items %}
         <article class="match-card" id="cv-{{ cv.id }}">
             <div class="pdf-wrapper">
-                <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}" class="pdf-preview"></iframe>
+                <iframe src="{{ url_for('main.uploaded_cv', filename=cv.filename) }}" class="pdf-preview"></iframe>
             </div>
             <div class="match-info">
                 <h3>{{ cv.filename }}</h3>
@@ -27,7 +27,7 @@
     {% else %}
     <p class="no-results">No shortlisted CVs yet.</p>
     {% endif %}
-    <a href="{{ url_for('jobgiver') }}" class="back-link">Back to Dashboard</a>
+    <a href="{{ url_for('jobgiver.jobgiver') }}" class="back-link">Back to Dashboard</a>
 </div>
 
 <script>
@@ -35,10 +35,10 @@ function removeShortlist(cv_id, button) {
     console.log('Removing from shortlist:', cv_id);
     cv_id = parseInt(cv_id);
     
-    fetch('/remove-shortlist', {
+    fetch("{{ url_for('jobgiver.remove_shortlist') }}", {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify({cv_id})
+        body: JSON.stringify({cv_id: cv_id})
     })
     .then(r => r.json())
     .then(d => {
@@ -78,10 +78,10 @@ function sendInvite(cv_id, button) {
     console.log('Sending invite for CV:', cv_id);
     cv_id = parseInt(cv_id);
     
-    fetch('/send-invite', {
+    fetch("{{ url_for('messaging.send_invite') }}", {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify({cv_id})
+        body: JSON.stringify({cv_id: cv_id})
     })
     .then(r => r.json())
     .then(d => {

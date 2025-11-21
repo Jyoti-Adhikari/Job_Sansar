@@ -19,22 +19,22 @@
     <header class="site-header">
         <div class="container header-content">
             <h1 class="logo">
-                <a href="{{ url_for('homepage') }}">Job Sansar</a>
+                <a href="{{ url_for('main.homepage') }}">Job Sansar</a>
             </h1>
             <nav class="nav-links">
-                <a href="{{ url_for('homepage') }}">Home</a>
-                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('main.homepage') }}">Home</a>
+                <a href="{{ url_for('main.about') }}">About</a>
                 
                 <!-- Only show Notification and Contact when user is logged in -->
                 {% if 'username' in session %}
                     {% if session['role'] == 'candidate' %}
                         <a href="{{ url_for('career.career_predictor') }}">Career Predictor</a>
                     {% endif %}
-                    <a href="{{ url_for('inbox') }}">Notification</a>
-                    <a href="{{ url_for('contact') }}">Contact</a>
-                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                    <a href="{{ url_for('messaging.inbox') }}">Notification</a>
+                    <a href="{{ url_for('auth.contact') }}">Contact</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn-login">Login</a>
                 {% endif %}
             </nav>
         </div>
@@ -64,12 +64,12 @@
         <div class="container footer-content">
             <p>© 2025 <strong>Job Sansar</strong>. All rights reserved.</p>
             <nav class="footer-nav">
-                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('main.about') }}">About</a>
                 <!-- Only show Contact in footer when user is logged in -->
                 {% if 'username' in session %}
-                    <a href="{{ url_for('contact') }}">Contact</a>
+                    <a href="{{ url_for('auth.contact') }}">Contact</a>
                 {% endif %}
-                <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+                <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
             </nav>
         </div>
     </footer>

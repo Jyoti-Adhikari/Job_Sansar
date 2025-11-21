@@ -10,8 +10,8 @@
         {% for filename, score, domain, job_id in results %}
             <article class="match-card" id="job-{{ job_id }}">
             <div class="pdf-wrapper">
-             <a href="{{ url_for('uploaded_job', filename=filename) }}" target="_blank" class="pdf-link">
-                    <iframe src="{{ url_for('uploaded_job', filename=filename) }}" class="pdf-preview"></iframe>
+             <a href="{{ url_for('main.uploaded_job', filename=filename) }}" target="_blank" class="pdf-link">
+                    <iframe src="{{ url_for('main.uploaded_job', filename=filename) }}" class="pdf-preview"></iframe>
                     <div class="pdf-overlay">
                         <span class="pdf-click-text">Click to open PDF</span>
                     </div>
@@ -43,7 +43,7 @@
     {% else %}
     <p class="no-results">No matching jobs found.</p>
     {% endif %}
-    <a href="{{ url_for('candidate') }}" class="back-link">Back to Dashboard</a>
+    <a href="{{ url_for('candidate.candidate') }}" class="back-link">Back to Dashboard</a>
 </div>
 
 <script>

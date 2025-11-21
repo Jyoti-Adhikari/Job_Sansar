@@ -8,11 +8,11 @@
 <div class="dashboard-wrapper">
     <header class="dash-header">
         <h2>Welcome, <span class="user-name">{{ username }}</span> (Job Giver)</h2>
-        <a href="{{ url_for('prejobgiver') }}" class="link-back">Back to Overview</a>
+        <a href="{{ url_for('jobgiver.prejobgiver') }}" class="link-back">Back to Overview</a>
     </header>
 
     <div style="text-align:center; margin:2rem 0;">
-    <a href="{{ url_for('shortlisted') }}" class="btn-highlight">
+    <a href="{{ url_for('jobgiver.shortlisted') }}" class="btn-highlight">
         <span>View Shortlisted CVs</span>
         
     </a>
@@ -45,8 +45,8 @@
                 {% for job in job_files %}
                 <article class="media-card job-card">
                     <<div class="media-wrapper">
-                        <a href="{{ url_for('uploaded_job', filename=job.filename) }}" target="_blank" class="pdf-link">
-                            <iframe src="{{ url_for('uploaded_job', filename=job.filename) }}"
+                        <a href="{{ url_for('main.uploaded_job', filename=job.filename) }}" target="_blank" class="pdf-link">
+                            <iframe src="{{ url_for('main.uploaded_job', filename=job.filename) }}"
                                  class="pdf-preview" loading="lazy"></iframe>
                             <div class="pdf-overlay">
                                 <span class="pdf-click-text">Click to open PDF<br>in new tab</span>
@@ -59,10 +59,10 @@
                         <p class="date">Uploaded {{ job.upload_date.strftime('%b %d, %Y %H:%M') }}</p>
 
                         <div class="card-actions">
-                            <form method="POST" action="{{ url_for('delete_job', job_id=job.id) }}" class="inline">
+                            <form method="POST" action="{{ url_for('jobgiver.delete_job', job_id=job.id) }}" class="inline">
                                 <button type="submit" class="btn-danger" onclick="return confirm('Delete this job?')">Delete</button>
                             </form>
-                            <form method="POST" action="{{ url_for('match_candidates') }}" class="inline">
+                            <form method="POST" action="{{ url_for('matching.match_candidates') }}" class="inline">
                                 <input type="hidden" name="job_id" value="{{ job.id }}">
                                 <button type="submit" class="btn-success">Find Matches</button>
                             </form>

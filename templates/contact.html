@@ -19,9 +19,9 @@
         {% endwith %}
 
         {% if not session.get('username') %}
-            <p>You must <a href="{{ url_for('login', next=request.url) }}">log in</a> to submit feedback.</p>
+            <p>You must <a href="{{ url_for('auth.login', next=request.url) }}">log in</a> to submit feedback.</p>
         {% else %}
-            <form method="POST" action="{{ url_for('contact') }}">
+            <form method="POST" action="{{ url_for('auth.contact') }}">
                 <div class="form-group">
                     <label for="message">Your Feedback:</label>
                     <textarea name="message" id="message" rows="5" class="form-control" placeholder="Enter your feedback" required></textarea>
@@ -32,8 +32,8 @@
 
         {% if session.get('username') %}
             <p>
-                <a href="{% if session.role == 'candidate' %}{{ url_for('candidate') }}
-                         {% elif session.role == 'jobgiver' %}{{ url_for('jobgiver') }}
+                <a href="{% if session.role == 'candidate' %}{{ url_for('candidate.candidate') }}
+                         {% elif session.role == 'jobgiver' %}{{ url_for('jobgiver.jobgiver') }}
                          {% elif session.role == 'admin' %}{{ url_for('admin.admin_dashboard') }}
                          {% endif %}">Return Back</a>
             </p>

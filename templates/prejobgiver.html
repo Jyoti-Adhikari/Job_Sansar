@@ -17,7 +17,7 @@
         </p>
 
         <div class="cta-box animate-float">
-            <form action="{{ url_for('jobgiver') }}" method="GET">
+            <form action="{{ url_for('jobgiver.jobgiver') }}" method="GET">
                 <button type="submit" class="cta-btn pulse-glow">
                     <span class="btn-icon">🚀</span>
                     <span class="btn-text">Launch Job Post</span>
@@ -44,8 +44,8 @@
             {% for cv in cvs %}
             <article class="media-card cv-card animate-scale-in" style="--delay: {{ loop.index * 0.1 }}s">
                 <div class="media-wrapper">
-                    <a href="{{ url_for('uploaded_cv', filename=cv.filename) }}" target="_blank" class="pdf-link">
-                        <iframe src="{{ url_for('uploaded_cv', filename=cv.filename) }}"
+                    <a href="{{ url_for('main.uploaded_cv', filename=cv.filename) }}" target="_blank" class="pdf-link">
+                        <iframe src="{{ url_for('main.uploaded_cv', filename=cv.filename) }}"
                                 class="pdf-preview" loading="lazy"></iframe>
                         <div class="pdf-overlay">
                             <span class="pdf-click-text">Click to open PDF</span>
@@ -67,7 +67,7 @@
         {% endif %}
 
         <div class="logout-link animate-fade-up delay-4">
-            <a href="{{ url_for('homepage') }}" class="link-primary">Log Out</a>
+            <a href="{{ url_for('auth.logout') }}" class="link-primary">Log Out</a>
         </div>
     </div>
 </section>

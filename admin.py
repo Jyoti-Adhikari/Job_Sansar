@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
-from app import db, User, Feedback, CandidateCV, JobRequirement, UserSkills, Shortlist, SavedJob, Application, Message, Notification
+from app import db
+from app.models import User, Feedback, CandidateCV, JobRequirement, UserSkills, Shortlist, SavedJob, Application, Message, Notification
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates')
 
@@ -7,7 +8,7 @@ admin_bp = Blueprint('admin', __name__, template_folder='templates')
 def admin_dashboard():
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     users = User.query.all()
     jobs = JobRequirement.query.all()
     cvs = CandidateCV.query.all()
@@ -17,7 +18,7 @@ def admin_dashboard():
 def view_feedback():
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     feedback_list = Feedback.query.join(User).with_entities(
         Feedback.id, Feedback.message, Feedback.submitted_at, User.username
     ).order_by(Feedback.submitted_at.desc()).all()
@@ -27,7 +28,7 @@ def view_feedback():
 def delete_feedback(feedback_id):
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     feedback = Feedback.query.get_or_404(feedback_id)
     db.session.delete(feedback)
     db.session.commit()
@@ -38,7 +39,7 @@ def delete_feedback(feedback_id):
 def delete_user(user_id):
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     
     user = User.query.get_or_404(user_id)
     
@@ -90,7 +91,7 @@ def delete_user(user_id):
 def delete_cv(cv_id):
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     
     cv = CandidateCV.query.get_or_404(cv_id)
     
@@ -106,7 +107,7 @@ def delete_cv(cv_id):
 def delete_job(job_id):
     if 'role' not in session or session['role'] != 'admin':
         flash("You must be an admin to access this page.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))  
     
     job = JobRequirement.query.get_or_404(job_id)
     
@@ -125,4 +126,4 @@ def logout():
     session.pop('role', None)
     session.pop('user_id', None)
     flash("You have been logged out.", "success")
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login')) 
